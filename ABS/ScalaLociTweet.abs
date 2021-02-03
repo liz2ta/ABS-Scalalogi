@@ -1,0 +1,120 @@
+module ScalaLociTweet;
+
+import * from ABS.Scheduler;
+import * from ABS.DC;
+
+// INTERFACE PART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+interface TweetI {
+  Bool hasHashtag(String ht);
+  String getAuthor();
+  List<String> getHashtags();
+  String getText();
+}
+
+interface Tier {
+  Unit op();
+}
+
+interface InputI extends Tier {
+  Unit retrieveTweetStream();
+  List<TweetI> getTweetStream();
+}
+
+interface TweetFilterI extends Tier {
+  Unit filterTweet(List<TweetI> tl);
+  List<TweetI> getFilteredTweets();
+}
+
+interface TweetMapperI extends Tier {
+  Unit mapTweet(List<TweetI> tl);
+}
+
+interface TweetFolderI extends Tier {
+  Unit fold(Map<String, Int> tf);
+}
+
+// CLASS PART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+class Tweet(String author, String text, List<String> hashtags) implements TweetI {
+
+  String getAuthor() {
+    return author;
+  }
+
+  List<String> getHashtags() {
+    return hashtags;
+  }
+
+  String getText() {
+    return text;
+  }
+
+  Bool hasHashtag(String ht) {
+    foreach (h in hashtags) {
+      if (h == ht) {
+        return True;
+      }
+    }
+    return False;
+  }
+}
+
+class Input implements InputI {
+  List<TweetI> tweetStream;
+
+  Unit retrieveTweetStream() {
+    tweetStream = list[];
+    TweetI t = Tweet("user1", "text1", list["ht1","ht2"]);
+    appendright(tweetStream,t);
+    t = Tweet("user2", "text1", list["ht1","multitier"]);
+    appendright(tweetStream,t);
+  }
+
+  List<TweetI> getTweetStream() { return tweetStream; }
+  Unit op() { this.retrieveTweetStream(); }
+}
+
+class TweetFilter(InputI source) implements TweetFilterI {
+  List<TweetI> filtered;
+
+  Unit filterTweet(List<TweetI> tweetStream) {
+    filtered = filter((TweetI t) => t.hasHashtag("multitier"))(source.getTweetStream());
+  }
+
+  List<TweetI> getFilteredTweets() { return filtered; }
+  Unit op() { this.filterTweet(source.getTweetStream()); }
+}
+
+class TweetMapper(TweetFilterI source) implements TweetMapperI {
+  List<String> mapped;
+
+  Unit mapTweet(List<TweetI> tl) {
+    mapped = map((TweetI t) => t.getAuthor())(tl);
+  }
+
+  Unit op() { this.mapTweet(source.getFilteredTweets())}
+}
+
+class TweetFolder(TweetMapperI source) implements TweetFolderI {
+  Map<String, Int> folded;
+
+  Unit fold(Map<String, Int> tf) {
+    folded = foldl ((m, author) => put(m, lookupDefault(m, author, 0) + 1)) (tf, map[]);
+  }
+
+  Unit op() { this.fold(source.getMappedTweets()) }
+}
+
+// MAIN BLOCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ScalaLoci runtime environment
+{
+  List<Tier> inputNodes = list[Input(), Input(), Input()];
+  List<Tier> filterNodes = list[TweetFilter(inputNodes[0]), TweetFilter(inputNodes[1]), TweetFilter(inputNodes[2])]
+  List<Tier> mapperNodes = list[TweetMapper(filterNodes[0]), TweetMapper(filterNodes[1]), TweetMapper(filterNodes[2])]
+  List<Tier> folderNodes = list[TweetFolder(mapperNodes[0]), TweetFolder(mapperNodes[1]), TweetFolder(mapperNodes[2])];
+  List<Tier> all = concatenate(concatenate(inputNodes, filterNodes), concatenate(mapperNodes, folderNodes))
+  forall(t in all) {
+    t!op();
+  }
+}
