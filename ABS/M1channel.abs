@@ -1,0 +1,159 @@
+
+
+module Example;
+import * from ABS.DC;
+
+
+data Event = Ev(String message);
+data ConnType = One | Many ;
+type EvList = List<Event>;
+type TierSet = Set<Tier>;
+
+interface IM1Channel{
+  Unit connect(Tier tier, String name,ConnType conn);
+  Unit send(Event ev, Tier tier);
+  Unit broadcast(Event ev, Tier tier);
+
+}
+
+class M1Channel() implements IM1Channel{
+  TierSet many  = set[];
+  Tier one = null;
+
+  Unit connect(Tier tier, String name, ConnType conn){
+    if (conn == One) await this!connectOne(tier,name);
+    else await this!connectMany(tier,name);
+  }
+
+
+  Unit connectMany(Tier tier, String name){
+    many = insertElement(many, tier);
+    //println("channel connected to one of many " + name);
+  }
+
+  Unit connectOne(Tier tier, String name){
+    one = tier;
+    //println("channel connected to one of one " + name);
+  }
+
+  Unit send(Event ev, Tier tier){
+      one!receive(ev, tier);
+  }
+
+  Unit broadcast(Event ev, Tier tier){
+    foreach (tr in elements(many)) {
+      if (tr!= tier) tr!receive(ev,one);
+    }
+  }
+
+
+}
+
+interface Tier {
+  Unit connect(IM1Channel ch, ConnType conn);
+  Unit receive(Event ev, Tier tier);
+}
+
+interface IProducer extends Tier {
+  Unit firemsg(String m);
+  Unit listen();
+}
+
+interface IConsumer extends Tier {
+  Unit globalChat();
+}
+
+
+class Producer(String name) implements IProducer{
+  IM1Channel channel = null;
+  EvList chat= Nil;
+
+
+  Unit connect(IM1Channel ch, ConnType conn){
+    channel = ch;
+    await channel!connect(this, name, conn);
+    //println(name + " connected to the channel");
+  }
+
+  Unit receive(Event ev, Tier tier) {
+    chat = appendright(chat, ev);
+  //  println(name + " receive: " + message(ev));
+  }
+
+  Unit firemsg(String m) {
+      String msg = name + ": " + m;
+      //   println("Send: " + msg);
+      channel!send(Ev(msg),this);
+      }
+
+  Unit listen(){
+    println("Local chat in: " + name);
+    foreach (ev in chat) println(message(ev));
+  }
+}
+
+class Consumer(String name) implements IConsumer{
+  EvList evl= Nil;
+  IM1Channel channel = null;
+  String msg = " ";
+
+  Unit connect(IM1Channel ch, ConnType conn){
+    channel = ch;
+      await channel!connect(this, name, conn);
+    //println(name + " connected to the channel");
+  }
+
+  Unit receive(Event ev, Tier tier) {
+    evl = appendright(evl, ev);
+    //println("Receive: " + message(ev));
+    //println(message(ev));
+    channel!broadcast(ev,tier);
+  }
+
+  Unit globalChat(){
+    println("Global chat in " + name);
+    foreach (ev in evl) println(message(ev));
+  }
+}
+
+{ // Main block:
+  IM1Channel ch = new  M1Channel();
+  IConsumer cn =  new Consumer("Server");
+  IProducer  pr1 = new Producer("C1");
+  IProducer  pr2 = new Producer("C2");
+  IProducer  pr3 = new Producer("C3");
+  IProducer  pr4 = new Producer("C4");
+  IProducer  pr5 = new Producer("C5");
+
+  await cn!connect(ch, One);
+  await pr1!connect(ch, Many);
+  await pr2!connect(ch, Many);
+  await pr3!connect(ch, Many);
+  await pr4!connect(ch, Many);
+  await pr5!connect(ch, Many);
+
+
+  pr1!firemsg("Hello");
+  pr2!firemsg("Hallo");
+  pr3!firemsg("Ciao");
+  pr4!firemsg("Hola");
+  pr5!firemsg("Hei");
+
+  await duration(1,1);
+
+  await cn!globalChat();
+  await pr1!listen();
+  await pr2!listen();
+  await pr3!listen();
+  await pr4!listen();
+  await pr5!listen();
+
+}
+
+
+// Local Variables:
+// abs-use-timed-interpreter: t
+// abs-indent: 2
+// abs-target-language: erlang
+// abs-clock-limit: 100
+// End:
