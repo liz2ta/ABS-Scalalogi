@@ -5,6 +5,24 @@ import * from ABS.DC;
 
 // INTERFACE PART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+interface MessageI {
+  Unit write(MessageI m);
+  MessageI read();
+}
+
+interface ChannelI {
+  Unit send(MessageI m);
+  Fut<MessageI> receive();
+}
+
+// class A {
+//   List<String> filtered;
+//   List<String> getResult() { doStuff(); return filtered; }
+//   Unit doStuff() {
+//     filtered = filter((String t) => t=="multitier")(list["singletier","multitier"]);
+//   }
+// }
+
 interface TweetI {
   Bool hasHashtag(String ht);
   String getAuthor();
@@ -36,6 +54,19 @@ interface TweetFolderI extends Tier {
 
 // CLASS PART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+class Message implements MessageI {
+  List<TweetI> tl;
+
+  Unit write(TweetI t) { this.tl = t; }
+  TweetI read() { return tl; }
+}
+
+class Channel() implements ChannelI {
+  Fut<MessageI> msg;
+  Unit send(MessageI m) { this.msg = m; }
+  Fut<MessageI> receive() { return msg; }
+}
+
 class Tweet(String author, String text, List<String> hashtags) implements TweetI {
 
   String getAuthor() {
@@ -60,61 +91,81 @@ class Tweet(String author, String text, List<String> hashtags) implements TweetI
   }
 }
 
-class Input implements InputI {
+class Input(Channel c1) implements InputI {
   List<TweetI> tweetStream;
 
   Unit retrieveTweetStream() {
     tweetStream = list[];
     TweetI t = Tweet("user1", "text1", list["ht1","ht2"]);
     appendright(tweetStream,t);
-    t = Tweet("user2", "text1", list["ht1","multitier"]);
+    t = Tweet("user2", "text2", list["ht1","multitier"]);
     appendright(tweetStream,t);
   }
 
-  List<TweetI> getTweetStream() { return tweetStream; }
-  Unit op() { this.retrieveTweetStream(); }
+  Unit op() {
+    this.retrieveTweetStream();
+    c1!send(tweetStream);
+  }
 }
 
-class TweetFilter(InputI source) implements TweetFilterI {
+class TweetFilter(Channel c1, Channel c2) implements TweetFilterI {
   List<TweetI> filtered;
 
   Unit filterTweet(List<TweetI> tweetStream) {
-    filtered = filter((TweetI t) => t.hasHashtag("multitier"))(source.getTweetStream());
+    tweetStream = list[];
+    TweetI t = Tweet("user1", "text1", list["ht1","ht2"]);
+    appendright(tweetStream,t);
+    t = Tweet("user2", "text2", list["ht1","multitier"]);
+    appendright(tweetStream,t);
+    filtered = tweetStream;//filter((TweetI t) => (t.hasHashtag("multitier")==True))(tweetStream);
   }
 
-  List<TweetI> getFilteredTweets() { return filtered; }
-  Unit op() { this.filterTweet(source.getTweetStream()); }
+  Unit op() {
+    this.filterTweet(c1!receive().get);
+    c2!send(filtered);
+  }
 }
 
-class TweetMapper(TweetFilterI source) implements TweetMapperI {
+class TweetMapper(List<Channel> c) implements TweetMapperI {
   List<String> mapped;
 
   Unit mapTweet(List<TweetI> tl) {
-    mapped = map((TweetI t) => t.getAuthor())(tl);
+    mapped = list[Pair("author1",1)]; //map((TweetI t) => t.getAuthor())(tl);
   }
 
-  Unit op() { this.mapTweet(source.getFilteredTweets())}
+  Unit op() {
+    this.mapTweet(c1!receive().get);
+    c2!send(mapped);
+  }
 }
 
-class TweetFolder(TweetMapperI source) implements TweetFolderI {
+class TweetFolder(Channel c1) implements TweetFolderI {
   Map<String, Int> folded;
 
   Unit fold(Map<String, Int> tf) {
-    folded = foldl ((m, author) => put(m, lookupDefault(m, author, 0) + 1)) (tf, map[]);
+    folded = list[Pair("author1",1)];//foldl ((m, author) => put(m, lookupDefault(m, author, 0) + 1)) (tf, map[]);
   }
 
-  Unit op() { this.fold(source.getMappedTweets()) }
+  Unit op() {
+    this.fold(c1.receive().get);
+  }
 }
 
 // MAIN BLOCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // ScalaLoci runtime environment
 {
-  List<Tier> inputNodes = list[Input(), Input(), Input()];
-  List<Tier> filterNodes = list[TweetFilter(inputNodes[0]), TweetFilter(inputNodes[1]), TweetFilter(inputNodes[2])]
-  List<Tier> mapperNodes = list[TweetMapper(filterNodes[0]), TweetMapper(filterNodes[1]), TweetMapper(filterNodes[2])]
-  List<Tier> folderNodes = list[TweetFolder(mapperNodes[0]), TweetFolder(mapperNodes[1]), TweetFolder(mapperNodes[2])];
-  List<Tier> all = concatenate(concatenate(inputNodes, filterNodes), concatenate(mapperNodes, folderNodes))
-  forall(t in all) {
+
+  Channel c1 = new Channel();
+  List<Tier> inputNodes = list[Input(c1)];
+  Channel c2 = new Channel();
+  List<Tier> filterNodes = list[TweetFilter(c1,c2)];
+  Channel c3 = new Channel();
+  List<Tier> mapperNodes = list[TweetMapper(c2,c3)];
+  Channel c4 = new Channel();
+  List<Tier> folderNodes = list[TweetFolder(c3,c4)];
+  List<Tier> all = concatenate(concatenate(inputNodes, filterNodes), concatenate(mapperNodes, folderNodes));
+  foreach(t in all) {
     t!op();
+    await duration(1,1);
   }
 }
