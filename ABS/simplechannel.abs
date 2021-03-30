@@ -1,0 +1,115 @@
+
+
+module Example;
+import * from ABS.DC;
+
+
+data Event = Ev(String message);
+type EvList = List<Event>;
+
+interface IChannel{
+  //called by the client
+  Unit send(Event ev, Tier tier);
+  Unit connect(Tier tier, String name);
+
+}
+
+class Channel() implements IChannel{
+  Tier tier1 = null;
+  Tier tier2 = null;
+
+  Unit connect(Tier tier, String name){
+    if (tier1 == null) tier1 = tier;
+    else tier2 = tier;
+    println("channel connected to " + name);
+  }
+
+  Unit send(Event ev, Tier tier){
+    if (tier1 == tier)
+      await tier2!receive(ev);
+    else
+      await tier1!receive(ev);
+  }
+}
+
+interface Tier {
+  Unit connect(IChannel ch);
+  Unit receive(Event ev);
+}
+
+interface IProducer extends Tier {
+  Unit firemsg();
+}
+
+interface IConsumer extends Tier {
+  Unit printevl();
+}
+
+
+class Producer(String name) implements IProducer{
+
+  IChannel channel = null;
+
+  Unit connect(IChannel ch){
+    channel = ch;
+    await channel!connect(this, name);
+    println(name + " connected to the channel");
+  }
+
+  Unit receive(Event ev) {skip;}
+
+  Unit firemsg() {
+      Int i = 0 ;
+      String msg = " ";
+      while (i<5){
+        i = i+1;
+         msg = "Hi Nro" + toString(i);
+         println("Send: " + msg);
+         await channel!send(Ev(msg),this);
+
+
+      }
+    }
+  }
+
+class Consumer(String name) implements IConsumer{
+  EvList evl= Nil;
+  IChannel channel = null;
+
+  Unit connect(IChannel ch){
+    channel = ch;
+    await channel!connect(this, name);
+    println(name + " connected to the channel");
+  }
+
+  Unit receive(Event ev) {
+    evl = appendright(evl, ev);
+    println("Receive: " + message(ev));
+  }
+
+  Unit printevl(){
+    println("all received messages: ");
+    foreach (ev in evl) println(message(ev));
+  }
+}
+
+{ // Main block:
+  IChannel ch = new Channel();
+  IProducer  pr = new Producer("producer");
+  IConsumer cn =  new Consumer("consumer");
+
+  await pr!connect(ch);
+  await cn!connect(ch);
+
+  await pr!firemsg();
+  await duration(1,1);
+  await cn!printevl();
+}
+
+
+// Local Variables:
+// abs-use-timed-interpreter: t
+// abs-indent: 2
+// abs-target-language: erlang
+// abs-clock-limit: 100
+// End:
