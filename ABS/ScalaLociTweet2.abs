@@ -1,0 +1,132 @@
+module ScalaLociTweet;
+
+import * from ABS.Scheduler;
+import * from ABS.DC;
+
+type Author = String;
+type Hashtag = String;
+data TweetI = Tweet(Author author, String text, List<Hashtag> hashtags);
+type MessageI = List<TweetI>;
+//| List<Author>;
+
+
+interface Tier {
+  Unit op(Maybe<String> arg);
+}
+
+interface ChannelI {
+  Unit send(Fut<MessageI> m);
+  Fut<MessageI> receive();
+}
+
+class Channel() implements ChannelI {
+  Fut<MessageI> msg;
+  Unit send(Fut<MessageI> m) { msg = m; }
+  Fut<MessageI> receive() { return msg; }
+}
+
+interface InputI extends Tier {
+  MessageI retrieveTweetStream();
+}
+
+class Input(ChannelI c1) implements InputI {
+
+  MessageI retrieveTweetStream() {
+    MessageI tweetStream = Nil;
+    TweetI t = Tweet("user1", "text1", list["ht1","ht2"]);
+    appendright(tweetStream,t);
+    t = Tweet("user2", "text2", list["ht1","multitier"]);
+    appendright(tweetStream,t);
+    return tweetStream;
+  }
+
+  Unit op(Maybe<String> arg) {
+    Fut<MessageI> f = this!retrieveTweetStream();
+    c1!send(f);
+  }
+}
+
+
+interface TweetFilterI extends Tier {
+  MessageI filterTweet(MessageI tweetStream, Hashtag ht);
+
+}
+
+class TweetFilter(ChannelI c1, ChannelI c2) implements TweetFilterI {
+
+  MessageI filterTweet(MessageI tweetStream, Hashtag ht) {
+    MessageI filtered = Nil;
+    TweetI t = Tweet(" ", " ", list[]);
+    while (tweetStream != Nil){
+       t = head(tweetStream);
+      foreach (h in hashtags(t)) {
+        if (h == ht) {
+          filtered = appendright(tweetStream,t);
+        }
+      tweetStream = tail(tweetStream);
+    }
+    }
+     return filtered;
+  }
+
+  Unit op(Maybe<String> argu){
+    Fut<Fut<MessageI>> ftmp =  c1!receive();
+    await ftmp?;
+    Fut<MessageI> f = ftmp.get;
+    await f?;
+    MessageI tweetStream =  f.get;
+    String a = " ";
+    if (argu!= Nothing) {a = fromJust(argu);}
+    Fut<MessageI> f2 = this!filterTweet(tweetStream, a);
+    c2!send(f2);
+  }
+}
+
+/*
+interface TweetMapperI extends Tier {
+  Unit mapTweet(List<TweetI> tl);
+}
+
+class TweetMapper(List<Channel> c) implements TweetMapperI {
+  List<String> mapped;
+
+  Unit mapTweet(List<TweetI> tl) {
+    mapped = list[Pair("author1",1)]; //map((TweetI t) => t.getAuthor())(tl);
+  }
+
+  Unit op(Maybe<String> arg) {
+    this.mapTweet(c1!receive().get);
+    c2!send(mapped);
+  }
+}
+
+interface TweetFolderI extends Tier {
+  Unit fold(Map<String, Int> tf);
+}
+
+class TweetFolder(Channel c1) implements TweetFolderI {
+  Map<String, Int> folded;
+
+  Unit fold(Map<String, Int> tf) {
+    folded = list[Pair("author1",1)];//foldl ((m, author) => put(m, lookupDefault(m, author, 0) + 1)) (tf, map[]);
+  }
+
+  Unit op(Maybe<String> arg) {
+    this.fold(c1.receive().get);
+  }
+}
+*/
+
+// MAIN BLOCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ScalaLoci runtime environment
+{
+
+  ChannelI c1 = new Channel();
+  ChannelI c2 = new Channel();
+Tier input = new Input(c1);
+  Tier filter = new TweetFilter(c1,c2);
+
+  input!op(Nothing);
+  filter!op(Just("multitier"));
+
+}
