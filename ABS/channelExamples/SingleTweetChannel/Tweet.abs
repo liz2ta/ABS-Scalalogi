@@ -72,8 +72,7 @@ class TweetFolder(ChannelI c3) implements TweetFolderI {
 }
 
 
-// MAIN BLOCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// ScalaLoci runtime environment
+// MAIN BLOCK 
 {
 
   List<Message> msgs = list[
