@@ -72,18 +72,18 @@ class TweetFolder(ChannelI c3) implements TweetFolderI {
 }
 
 
-// MAIN BLOCK 
+// MAIN BLOCK
 {
 
   List<Message> msgs = list[
-          Tweet("author1", "text1", list["ht1","ht2"]),
-          Tweet("author2", "text2", list["ht3"]),
-          Tweet("author3", "text3", list["ht1","ht2"]),
-          Tweet("author4", "text4", list["ht3","ht2"]),
-          Tweet("author5", "text5", list["ht2"]),
-          Tweet("author1", "text6", list["ht1","ht3","ht5"]),
-          Tweet("author3", "text3", list["ht1"]),
-          Tweet("author2", "text2", list["ht1"])];
+          Tweet("author1", list["ht1","ht2"]),
+          Tweet("author2", list["ht3"]),
+          Tweet("author3", list["ht1","ht2"]),
+          Tweet("author4", list["ht3","ht2"]),
+          Tweet("author5", list["ht2"]),
+          Tweet("author1", list["ht1","ht3","ht5"]),
+          Tweet("author3", list["ht1"]),
+          Tweet("author2", list["ht1"])];
   Int size = length(msgs);
   Int i = 0;
 

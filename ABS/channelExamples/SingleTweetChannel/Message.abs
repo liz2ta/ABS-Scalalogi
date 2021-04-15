@@ -2,5 +2,5 @@ module Message;
 export *;
 
 type Hashtag = String;
-data Message = Tweet(String authorId, String text, List<Hashtag> hashtags)
+data Message = Tweet(String authorId,  List<Hashtag> hashtags)
              | Author(String authorId);
