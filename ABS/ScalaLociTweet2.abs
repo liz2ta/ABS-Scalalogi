@@ -1,29 +1,22 @@
 module ScalaLociTweet;
 
-import * from ABS.Scheduler;
 import * from ABS.DC;
+import * from ScalaLociChannel;
 
-type Author = String;
+/*type Author = String;
 type Hashtag = String;
+data Message<A> = MSG(A);
 data TweetI = Tweet(Author author, String text, List<Hashtag> hashtags);
 type MessageI = List<TweetI>;
+*/
 //| List<Author>;
 
+type Message = Int;
 
-interface Tier {
+/*interface Tier {
   Unit op(Maybe<String> arg);
 }
 
-interface ChannelI {
-  Unit send(Fut<MessageI> m);
-  Fut<MessageI> receive();
-}
-
-class Channel() implements ChannelI {
-  Fut<MessageI> msg;
-  Unit send(Fut<MessageI> m) { msg = m; }
-  Fut<MessageI> receive() { return msg; }
-}
 
 interface InputI extends Tier {
   MessageI retrieveTweetStream();
@@ -121,12 +114,39 @@ class TweetFolder(Channel c1) implements TweetFolderI {
 // ScalaLoci runtime environment
 {
 
-  ChannelI c1 = new Channel();
+/*  ChannelI c1 = new Channel();
   ChannelI c2 = new Channel();
 Tier input = new Input(c1);
   Tier filter = new TweetFilter(c1,c2);
 
   input!op(Nothing);
   filter!op(Just("multitier"));
+  */
+
+  List<Message> msgs = list[1,2,3,4,5,6,7,8,9,10];
+  Int size = length(msgs);
+  Int i = 0;
+  Message m = 0;
+  ChannelI c1 = new Channel(0);
+
+
+//  foreach (msg in  msgs) {
+//    c1!send(msg);
+//    println(`we have sent $msg$`);
+//  }
+
+
+  while (i<size) {
+    await c1!send(nth(msgs,i));
+    println(`we have sent $nth(msgs,i)$`);
+    i = i+1;
+  }
+  println(`we finished the sending`);
+  i = 0;
+  while(i<size){
+    m = await c1!receive();
+    println(`we have received $m$`);
+    i = i+1;
+  }
 
 }

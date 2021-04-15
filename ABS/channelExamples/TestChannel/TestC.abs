@@ -1,0 +1,37 @@
+// to compile
+// absc --erlang TestChannel/*.abs Channel/*.abs
+
+
+module TestC;
+
+import * from Channel;
+import * from Message;
+
+{
+  List<Message> msgs = list[1,2,3,4,5,6,7,8,9,10];
+  Int size = length(msgs);
+  Int i = 0;
+  Message m = 0;
+  ChannelI c1 = new Channel(0);
+
+
+  foreach (msg in  msgs) {
+    await c1!send(msg);
+    println(`we have sent $msg$`);
+  }
+
+
+/*  while (i<size) {
+    await c1!send(nth(msgs,i));
+    println(`we have sent $nth(msgs,i)$`);
+    i = i+1;
+  }*/
+  println(`we finished the sending`);
+  i = 0;
+  while(i<size){
+    m = await c1!receive();
+    println(`we have received $m$`);
+    i = i+1;
+  }
+
+}

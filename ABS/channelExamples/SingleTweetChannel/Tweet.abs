@@ -1,0 +1,115 @@
+// to compile
+// absc --erlang SingleTweetChannel/*.abs Channel/*.abs
+
+module Tweet;
+
+import * from Channel;
+import * from Message;
+
+interface InputI {
+  Unit fire(Message t);
+}
+
+class Input(ChannelI c1) implements InputI {
+  Unit fire(Message t) {
+    await c1!send(t);
+    println(`Input has sent $t$`);
+  }
+}
+
+
+interface TweetFilterI {
+  Unit filterTweet(Hashtag ht);
+}
+
+class TweetFilter(ChannelI c1, ChannelI c2) implements TweetFilterI {
+  Unit filterTweet(Hashtag ht) {
+    Message t = await c1!receive();
+    foreach (h in hashtags(t)) {
+      if (h == ht) {
+        await c2!send(t);
+        println(`Filter has sent $t$`);
+      }
+    }
+    this!filterTweet(ht);
+   }
+}
+
+
+interface TweetMapperI {
+  Unit mapTweet();
+}
+
+class TweetMapper(ChannelI c2, ChannelI c3) implements TweetMapperI {
+  Unit mapTweet() {
+    Message t = await c2!receive();
+    await c3!send(Author(authorId(t)));
+    println(`Mapper has sent $authorId(t)$`);
+    this!mapTweet();
+  }
+}
+
+interface TweetFolderI  {
+  Unit fold();
+  Unit printFolder();
+}
+
+class TweetFolder(ChannelI c3) implements TweetFolderI {
+  Map<String,Int> folded = map[];
+  Unit fold() {
+    Message a = await c3!receive();
+    println(`==FOLDER HAS RECEIVED $a$==`);
+    folded = put(folded, authorId(a), lookupDefault(folded, authorId(a), 0)+1);
+    this!fold();
+  }
+
+  Unit printFolder(){
+    foreach (e in  entries(folded)) {
+      println(`$e$`);
+    }
+  }
+
+}
+
+
+// MAIN BLOCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ScalaLoci runtime environment
+{
+
+  List<Message> msgs = list[
+          Tweet("author1", "text1", list["ht1","ht2"]),
+          Tweet("author2", "text2", list["ht3"]),
+          Tweet("author3", "text3", list["ht1","ht2"]),
+          Tweet("author4", "text4", list["ht3","ht2"]),
+          Tweet("author5", "text5", list["ht2"]),
+          Tweet("author1", "text6", list["ht1","ht3","ht5"]),
+          Tweet("author3", "text3", list["ht1"]),
+          Tweet("author2", "text2", list["ht1"])];
+  Int size = length(msgs);
+  Int i = 0;
+
+  ChannelI c1 = new Channel(0);
+  ChannelI c2 = new Channel(0);
+  ChannelI c3 = new Channel(0);
+  InputI input = new Input(c1);
+  TweetFilterI filter = new TweetFilter(c1,c2);
+  TweetMapperI mapper = new TweetMapper(c2,c3);
+  TweetFolderI folder = new TweetFolder(c3);
+
+  println(`================EXECUTION=================`);
+  filter!filterTweet("ht1");
+  mapper!mapTweet();
+  folder!fold();
+
+  while (i<size) {
+    await input!fire(nth(msgs,i));
+    println(`we have input $nth(msgs,i)$`);
+    i = i+1;
+  }
+
+  await duration(1,1);
+
+  println(`================RESULTS=================`);
+  folder!printFolder();
+
+}

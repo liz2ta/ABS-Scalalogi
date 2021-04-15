@@ -1,0 +1,4 @@
+module Message;
+export *;
+
+type Message = Int;

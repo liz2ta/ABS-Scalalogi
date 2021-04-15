@@ -1,0 +1,26 @@
+module Channel;
+import * from Message;
+export *;
+
+interface ChannelI {
+  Unit send(Message m);
+  Message receive();
+}
+
+//if size = 0, then unbounded channel
+class Channel(Int size) implements ChannelI {
+  List<Message> msgs = Nil;
+  Unit send(Message m) {
+      if (size == 0) msgs = appendright(msgs, m);
+      else {
+        await (length(msgs)<=size);
+        msgs = appendright(msgs, m);
+      }
+   }
+  Message receive() {
+    await !isEmpty(msgs);
+    Message h = head(msgs);
+    msgs = tail(msgs);
+    return h;
+  }
+}
