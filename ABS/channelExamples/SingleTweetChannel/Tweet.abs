@@ -1,7 +1,6 @@
-// to compile
-// absc --erlang SingleTweetChannel/*.abs Channel/*.abs
 
 module Tweet;
+export *;
 
 import * from Channel;
 import * from Message;
@@ -68,47 +67,5 @@ class TweetFolder(ChannelI c3) implements TweetFolderI {
       println(`$e$`);
     }
   }
-
-}
-
-
-// MAIN BLOCK
-{
-
-  List<Message> msgs = list[
-          Tweet("author1", list["ht1","ht2"]),
-          Tweet("author2", list["ht3"]),
-          Tweet("author3", list["ht1","ht2"]),
-          Tweet("author4", list["ht3","ht2"]),
-          Tweet("author5", list["ht2"]),
-          Tweet("author1", list["ht1","ht3","ht5"]),
-          Tweet("author3", list["ht1"]),
-          Tweet("author2", list["ht1"])];
-  Int size = length(msgs);
-  Int i = 0;
-
-  ChannelI c1 = new Channel(0);
-  ChannelI c2 = new Channel(0);
-  ChannelI c3 = new Channel(0);
-  InputI input = new Input(c1);
-  TweetFilterI filter = new TweetFilter(c1,c2);
-  TweetMapperI mapper = new TweetMapper(c2,c3);
-  TweetFolderI folder = new TweetFolder(c3);
-
-  println(`================EXECUTION=================`);
-  filter!filterTweet("ht1");
-  mapper!mapTweet();
-  folder!fold();
-
-  while (i<size) {
-    await input!fire(nth(msgs,i));
-    println(`we have input $nth(msgs,i)$`);
-    i = i+1;
-  }
-
-  await duration(1,1);
-
-  println(`================RESULTS=================`);
-  folder!printFolder();
 
 }
