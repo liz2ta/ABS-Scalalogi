@@ -1,0 +1,37 @@
+module Port;
+import * from Message;
+import * from Channel;
+import * from Stream;
+
+export *;
+
+
+interface PortI {
+  StreamM receive();
+  Unit send(StreamM st);
+}
+
+
+class Port(ChannelI c) implements PortI {
+  Bool setup = False;
+  InputStreamI ist = null;
+  OutputStreamI ost = null;
+
+  StreamM receive() {
+    await setup;
+    StreamM st = await ist!withdraw();
+    return st;
+  }
+
+
+  Unit  send(StreamM st) {
+    await setup;
+    await ost!deposit(st);
+  }
+
+  Unit run(){
+    ist = new InputStream(c);
+    ost = new OutputStream(c);
+    setup = True;
+  }
+}

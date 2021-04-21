@@ -1,18 +1,17 @@
-// to compile
-// absc --erlang SingleTweetChannel/*.abs Channel/*.abs
 
-module Stream;
+
+module StreamedMessages;
 export *;
 
 import * from Message;
 import * from Tweet;
 
-interface StreamI {
+interface StreamMessagesI {
   //manual stream
   Unit stream1();
 }
 
-class Stream(InputI input) implements StreamI {
+class StreamMessages(InputI input) implements StreamMessagesI {
 
   Unit stream1() {
     List<Message> msgs = list[

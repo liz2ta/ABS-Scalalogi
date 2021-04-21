@@ -1,0 +1,45 @@
+
+
+module StreamedMessages;
+export *;
+
+import * from Message;
+import * from Stream;
+import * from Port;
+import * from TweetStream;
+
+interface StreamMessagesI {
+  //manual stream
+  Unit stream1();
+}
+
+class StreamMessages(InputI input) implements StreamMessagesI {
+
+  Unit stream1() {
+    StreamM msgs = list[
+            Tweet("author1", list["ht1","ht2"]),
+            Tweet("author2", list["ht3"]),
+            Tweet("author3", list["ht1","ht2"]),
+            Tweet("author4", list["ht3","ht2"]),
+            Tweet("author5", list["ht2"]),
+            Tweet("author1", list["ht1","ht3","ht5"]),
+            Tweet("author3", list["ht1"]),
+            Tweet("author2", list["ht1"])];
+
+  Int counter = 10;
+  Int i1 = 0;
+  Int i2 = 0;
+  Int size = length(msgs);
+
+    while (i1<counter) {
+      while (i2 < size){
+        await input!fire(nth(msgs,i2));
+        i2 = i2+1;
+        //println(`we have input $m$`);
+      }
+      i2 = 0;
+      duration(i1,i1);
+      i1 = i1+1;
+    }
+  }
+}

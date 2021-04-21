@@ -1,0 +1,42 @@
+// to compile
+// absc --erlang  Channel/*.abs Stream/*.abs Port/*.abs SingleWorkflowTweetPort/*.abs
+
+module TestTweet;
+
+import * from Channel;
+import * from Message;
+import * from Stream;
+import * from Port;
+import * from TweetStream;
+import * from StreamedMessages;
+
+// MAIN BLOCK
+
+{
+  ChannelI c1 = new Channel(0);
+  ChannelI c2 = new Channel(0);
+  ChannelI c3 = new Channel(0);
+
+  PortI p1 = new Port(c1);
+  PortI p2 = new Port(c2);
+  PortI p3 = new Port(c3);
+
+  InputI input = new Input(c1);
+
+  TweetFilterI filter = new TweetFilter(p1,p2);
+  TweetMapperI mapper = new TweetMapper(p2,p3);
+  TweetFolderI folder = new TweetFolder(p3);
+
+  StreamMessagesI s = new StreamMessages(input);
+
+  println(`================EXECUTION=================`);
+  filter!filterTweet("ht1");
+  mapper!mapTweet();
+  folder!fold();
+  await s!stream1();
+  await duration(400,400);
+
+  println(`================RESULTS=================`);
+  folder!printFolder();
+
+}

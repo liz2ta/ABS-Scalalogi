@@ -1,0 +1,56 @@
+module Stream;
+import * from Message;
+import * from Channel;
+export *;
+
+type StreamM = List<Message>;
+
+interface InputStreamI {
+  StreamM withdraw();
+}
+
+
+class InputStream(ChannelI c) implements InputStreamI {
+  StreamM msgs = Nil;
+
+  Unit  deposit() {
+      Message m = await c!receive();
+      msgs = appendright(msgs, m);
+  }
+
+  StreamM withdraw() {
+    await !isEmpty(msgs);
+    StreamM tmp = msgs;
+    msgs = Nil;
+    return tmp;
+  }
+
+  Unit run(){
+    await this!deposit();
+    this!run();
+  }
+}
+
+interface OutputStreamI {
+  Unit deposit(StreamM st);
+}
+
+class OutputStream(ChannelI c) implements OutputStreamI {
+  StreamM msgs = Nil;
+
+  Unit  deposit(StreamM st) {
+      msgs = concatenate(msgs,st);
+  }
+
+  Unit withdraw() {
+    await !isEmpty(msgs);
+    Message h = head(msgs);
+    msgs = tail(msgs);
+    await c!send(h);
+  }
+
+  Unit run(){
+    await this!withdraw();
+    this!run();
+  }
+}

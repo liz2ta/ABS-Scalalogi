@@ -1,0 +1,71 @@
+// to compile
+// absc --erlang TestStream/*.abs Channel/*.abs Stream/*.abs
+
+
+module TestS;
+
+import * from Channel;
+import * from Message;
+import * from Stream;
+
+{
+  StreamM msgs1 = list[1,2,3,4,5,6,7,8,9,10];
+  StreamM msgs2 = list[11,12,13,14,15,16,17,18,19,20];
+  StreamM intermediate = Nil;
+
+  ChannelI c1 = new Channel(0);
+  ChannelI c2 = new Channel(0);
+  InputStreamI ist = new InputStream(c1);
+  OutputStreamI ost = new OutputStream(c2);
+
+  /*  while (i<size) {
+      await c1!send(nth(msgs,i));
+      println(`we have sent $nth(msgs,i)$`);
+      i = i+1;
+    }*/
+
+  foreach (msg in  msgs1) {
+    await c1!send(msg);
+    println(`we have sent $msg$`);
+  }
+
+  await duration(1,1);
+
+  intermediate = await ist!withdraw();
+  await ost!deposit(intermediate);
+  Int size = length(intermediate);
+  Int i = 0;
+  Message m = 0;
+
+  while(i<size){
+    m = await c2!receive();
+    println(`we have received $m$`);
+    i = i+1;
+  }
+  await duration(1,1);
+
+  println(`we finished processing the first batch`);
+
+  foreach (msg in  msgs2) {
+    await c1!send(msg);
+    println(`we have sent $msg$`);
+  }
+
+  await duration(1,1);
+
+  intermediate = await ist!withdraw();
+  await ost!deposit(intermediate);
+  size = length(intermediate);
+  i = 0;
+
+  while(i<size){
+    m = await c2!receive();
+    println(`we have received $m$`);
+    i = i+1;
+  }
+
+    await duration(1,1);
+
+    println(`we finished processing the second batch`);
+
+}

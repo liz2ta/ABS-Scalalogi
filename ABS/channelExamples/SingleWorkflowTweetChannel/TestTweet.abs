@@ -1,12 +1,12 @@
 // to compile
-// absc --erlang SingleTweetChannel/*.abs Channel/*.abs
+// absc --erlang SingleWorkflowTweetChannel/*.abs Channel/*.abs 
 
 module TestTweet;
 
 import * from Channel;
 import * from Message;
 import * from Tweet;
-import * from Stream;
+import * from StreamedMessages;
 
 // MAIN BLOCK
 
@@ -20,7 +20,7 @@ import * from Stream;
   TweetMapperI mapper = new TweetMapper(c2,c3);
   TweetFolderI folder = new TweetFolder(c3);
 
-  StreamI s = new Stream(input);
+  StreamMessagesI s = new StreamMessages(input);
 
   println(`================EXECUTION=================`);
   filter!filterTweet("ht1");
@@ -32,8 +32,7 @@ import * from Stream;
   await s!stream1();
   await duration(1,1);
   folder!printFolder();
-
-  //extend test2
+  //extend test1
   await s!stream1();
   await duration(1,1);
   folder!printFolder();

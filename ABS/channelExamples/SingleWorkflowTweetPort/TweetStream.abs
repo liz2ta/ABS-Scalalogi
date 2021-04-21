@@ -1,0 +1,88 @@
+
+module TweetStream;
+export *;
+
+import * from Channel;
+import * from Message;
+import * from Stream;
+import * from Port;
+
+interface InputI {
+  Unit fire(Message t);
+}
+
+class Input(ChannelI c) implements InputI {
+  Unit fire(Message t) {
+    c!send(t);
+  //  println(`Input has sent $t$`);
+  }
+}
+
+
+interface TweetFilterI {
+  Unit filterTweet(Hashtag ht);
+}
+
+class TweetFilter(PortI p1, PortI p2) implements TweetFilterI {
+  Unit filterTweet(Hashtag ht) {
+    StreamM filter = Nil;
+    duration(5,5);
+    StreamM st = await p1!receive();
+    println(`Filter has received $st$`);
+    foreach (m in st) {
+      foreach (h in hashtags(m)) {
+        if (h == ht) {
+          filter = appendright(filter,m);
+          //println(`Filter has filter $m$`);
+        }
+      }
+    }
+    p2!send(filter);
+    println(`Filter has sent $filter$`);
+    this!filterTweet(ht);
+   }
+}
+
+
+interface TweetMapperI {
+  Unit mapTweet();
+}
+
+class TweetMapper(PortI p2, PortI p3) implements TweetMapperI {
+  Unit mapTweet() {
+    StreamM map = Nil;
+    duration(5,5);
+    StreamM st = await p2!receive();
+    foreach (m in st) {
+      map = appendright(map,Author(authorId(m)));
+    }
+    p3!send(map);
+    println(`Mapper has sent $map$`);
+    this!mapTweet();
+  }
+}
+
+interface TweetFolderI  {
+  Unit fold();
+  Unit printFolder();
+}
+
+class TweetFolder(PortI p3) implements TweetFolderI {
+  Map<String,Int> folded = map[];
+  Unit fold() {
+    duration(5,5);
+    StreamM st = await p3!receive();
+    println(`==FOLDER HAS RECEIVED $st$==`);
+    foreach (m in st) {
+      folded = put(folded, authorId(m), lookupDefault(folded, authorId(m), 0)+1);
+    }
+    this!fold();
+  }
+
+  Unit printFolder(){
+    foreach (e in  entries(folded)) {
+      println(`$e$`);
+    }
+  }
+
+}
