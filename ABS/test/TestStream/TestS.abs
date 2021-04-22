@@ -1,5 +1,5 @@
 // to compile
-// absc --erlang TestStream/*.abs Channel/*.abs Stream/*.abs
+// absc --erlang test/TestStream/*.abs common/Channel/*.abs common/Stream/*.abs
 
 
 module TestS;
