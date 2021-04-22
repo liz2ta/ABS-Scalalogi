@@ -1,9 +1,9 @@
 module Stream;
-import * from Message;
+import * from Event;
 import * from Channel;
 export *;
 
-type StreamM = List<Message>;
+type StreamM = List<Event>;
 
 interface InputStreamI {
   StreamM withdraw();
@@ -14,7 +14,7 @@ class InputStream(ChannelI c) implements InputStreamI {
   StreamM msgs = Nil;
 
   Unit  deposit() {
-      Message m = await c!receive();
+      Event m = await c!receive();
       msgs = appendright(msgs, m);
   }
 
@@ -44,7 +44,7 @@ class OutputStream(ChannelI c) implements OutputStreamI {
 
   Unit withdraw() {
     await !isEmpty(msgs);
-    Message h = head(msgs);
+    Event h = head(msgs);
     msgs = tail(msgs);
     await c!send(h);
   }

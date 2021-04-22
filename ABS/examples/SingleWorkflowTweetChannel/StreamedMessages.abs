@@ -3,7 +3,7 @@
 module StreamedMessages;
 export *;
 
-import * from Message;
+import * from Event;
 import * from Tweet;
 
 interface StreamMessagesI {
@@ -14,7 +14,7 @@ interface StreamMessagesI {
 class StreamMessages(InputI input) implements StreamMessagesI {
 
   Unit stream1() {
-    List<Message> msgs = list[
+    List<Event> msgs = list[
             Tweet("author1", list["ht1","ht2"]),
             Tweet("author2", list["ht3"]),
             Tweet("author3", list["ht1","ht2"]),

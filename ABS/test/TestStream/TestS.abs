@@ -5,7 +5,7 @@
 module TestS;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 import * from Stream;
 
 {
@@ -35,7 +35,7 @@ import * from Stream;
   await ost!deposit(intermediate);
   Int size = length(intermediate);
   Int i = 0;
-  Message m = 0;
+  Event m = 0;
 
   while(i<size){
     m = await c2!receive();

@@ -1,5 +1,5 @@
 module Port;
-import * from Message;
+import * from Event;
 import * from Channel;
 import * from Stream;
 

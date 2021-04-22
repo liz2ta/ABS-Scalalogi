@@ -5,13 +5,13 @@
 module TestC;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 
 {
-  List<Message> msgs = list[1,2,3,4,5,6,7,8,9,10];
+  List<Event> msgs = list[1,2,3,4,5,6,7,8,9,10];
   Int size = length(msgs);
   Int i = 0;
-  Message m = 0;
+  Event m = 0;
   ChannelI c1 = new Channel(0);
 
 

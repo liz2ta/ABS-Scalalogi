@@ -5,7 +5,7 @@
 module TestP;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 import * from Stream;
 import * from Port;
 
@@ -23,7 +23,7 @@ import * from Port;
   await duration(1,1);
   Int size = length(intermediate);
   Int i = 0;
-  Message m = 0;
+  Event m = 0;
 
   while(i<size){
     m = head(intermediate);

@@ -3,16 +3,16 @@ module TweetStream;
 export *;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 import * from Stream;
 import * from Port;
 
 interface InputI {
-  Unit fire(Message t);
+  Unit fire(Event t);
 }
 
 class Input(ChannelI c) implements InputI {
-  Unit fire(Message t) {
+  Unit fire(Event t) {
     c!send(t);
   //  println(`Input has sent $t$`);
   }

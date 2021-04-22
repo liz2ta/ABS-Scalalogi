@@ -3,7 +3,7 @@
 module StreamedMessages;
 export *;
 
-import * from Message;
+import * from Event;
 import * from Stream;
 import * from Port;
 import * from TweetStream;

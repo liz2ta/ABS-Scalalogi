@@ -1,25 +1,25 @@
 module Channel;
-import * from Message;
+import * from Event;
 export *;
 
 interface ChannelI {
-  Unit send(Message m);
-  Message receive();
+  Unit send(Event m);
+  Event receive();
 }
 
 //if size = 0, then unbounded channel
 class Channel(Int size) implements ChannelI {
-  List<Message> msgs = Nil;
-  Unit send(Message m) {
+  List<Event> msgs = Nil;
+  Unit send(Event m) {
       if (size == 0) msgs = appendright(msgs, m);
       else {
         await (length(msgs)<=size);
         msgs = appendright(msgs, m);
       }
    }
-  Message receive() {
+  Event receive() {
     await !isEmpty(msgs);
-    Message h = head(msgs);
+    Event h = head(msgs);
     msgs = tail(msgs);
     return h;
   }

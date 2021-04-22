@@ -3,14 +3,14 @@ module Tweet;
 export *;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 
 interface InputI {
-  Unit fire(Message t);
+  Unit fire(Event t);
 }
 
 class Input(ChannelI c1) implements InputI {
-  Unit fire(Message t) {
+  Unit fire(Event t) {
     await c1!send(t);
     println(`Input has sent $t$`);
   }
@@ -23,7 +23,7 @@ interface TweetFilterI {
 
 class TweetFilter(ChannelI c1, ChannelI c2) implements TweetFilterI {
   Unit filterTweet(Hashtag ht) {
-    Message t = await c1!receive();
+    Event t = await c1!receive();
     foreach (h in hashtags(t)) {
       if (h == ht) {
         await c2!send(t);
@@ -41,7 +41,7 @@ interface TweetMapperI {
 
 class TweetMapper(ChannelI c2, ChannelI c3) implements TweetMapperI {
   Unit mapTweet() {
-    Message t = await c2!receive();
+    Event t = await c2!receive();
     await c3!send(Author(authorId(t)));
     println(`Mapper has sent $authorId(t)$`);
     this!mapTweet();
@@ -56,7 +56,7 @@ interface TweetFolderI  {
 class TweetFolder(ChannelI c3) implements TweetFolderI {
   Map<String,Int> folded = map[];
   Unit fold() {
-    Message a = await c3!receive();
+    Event a = await c3!receive();
     println(`==FOLDER HAS RECEIVED $a$==`);
     folded = put(folded, authorId(a), lookupDefault(folded, authorId(a), 0)+1);
     this!fold();

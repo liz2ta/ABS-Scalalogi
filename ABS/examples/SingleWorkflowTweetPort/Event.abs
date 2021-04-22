@@ -1,0 +1,6 @@
+module Event;
+export *;
+
+type Hashtag = String;
+data Event = Tweet(String authorId,  List<Hashtag> hashtags)
+             | Author(String authorId);

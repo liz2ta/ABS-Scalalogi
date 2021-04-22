@@ -1,10 +1,10 @@
 // to compile
-// absc --erlang examples/SingleWorkflowTweetChannel/*.abs common/Channel/*.abs 
+// absc --erlang examples/SingleWorkflowTweetChannel/*.abs common/Channel/*.abs
 
 module TestTweet;
 
 import * from Channel;
-import * from Message;
+import * from Event;
 import * from Tweet;
 import * from StreamedMessages;
 
@@ -27,14 +27,13 @@ import * from StreamedMessages;
   mapper!mapTweet();
   folder!fold();
 
-  println(`================RESULTS=================`);
   //test1
   await s!stream1();
-  await duration(1,1);
+  await duration(100,100);
   folder!printFolder();
   //extend test1
   await s!stream1();
-  await duration(1,1);
+  await duration(200,200);
   folder!printFolder();
 
 }
