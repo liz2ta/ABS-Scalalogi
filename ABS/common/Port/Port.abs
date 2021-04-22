@@ -1,6 +1,6 @@
 module Port;
 import * from Event;
-import * from Channel;
+import * from Medium;
 import * from Stream;
 
 export *;
@@ -12,7 +12,7 @@ interface PortI {
 }
 
 
-class Port(ChannelI c) implements PortI {
+class Port(MediumI c) implements PortI {
   Bool setup = False;
   InputStreamI ist = null;
   OutputStreamI ost = null;

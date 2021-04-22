@@ -1,9 +1,9 @@
 // to compile
-// absc --erlang examples/SingleWorkflowTweetChannel/*.abs common/Channel/*.abs
+// absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Channel/*.abs
 
 module TestTweet;
 
-import * from Channel;
+import * from Medium;
 import * from Event;
 import * from Tweet;
 import * from StreamedMessages;
@@ -11,9 +11,9 @@ import * from StreamedMessages;
 // MAIN BLOCK
 
 {
-  ChannelI c1 = new Channel(0);
-  ChannelI c2 = new Channel(0);
-  ChannelI c3 = new Channel(0);
+  MediumI c1 = new Medium(0);
+  MediumI c2 = new Medium(0);
+  MediumI c3 = new Medium(0);
 
   InputI input = new Input(c1);
   TweetFilterI filter = new TweetFilter(c1,c2);

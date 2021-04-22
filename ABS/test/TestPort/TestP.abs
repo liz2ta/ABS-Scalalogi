@@ -4,7 +4,7 @@
 
 module TestP;
 
-import * from Channel;
+import * from Medium;
 import * from Event;
 import * from Stream;
 import * from Port;
@@ -14,7 +14,7 @@ import * from Port;
   StreamM msgs2 = list[11,12,13,14,15,16,17,18,19,20];
   StreamM intermediate = Nil;
 
-  ChannelI c = new Channel(0);
+  MediumI c = new Medium(0);
   PortI p = new Port(c);
 
    p!send(msgs1);

@@ -1,6 +1,6 @@
 module Stream;
 import * from Event;
-import * from Channel;
+import * from Medium;
 export *;
 
 type StreamM = List<Event>;
@@ -10,7 +10,7 @@ interface InputStreamI {
 }
 
 
-class InputStream(ChannelI c) implements InputStreamI {
+class InputStream(MediumI c) implements InputStreamI {
   StreamM msgs = Nil;
 
   Unit  deposit() {
@@ -35,7 +35,7 @@ interface OutputStreamI {
   Unit deposit(StreamM st);
 }
 
-class OutputStream(ChannelI c) implements OutputStreamI {
+class OutputStream(MediumI c) implements OutputStreamI {
   StreamM msgs = Nil;
 
   Unit  deposit(StreamM st) {

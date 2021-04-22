@@ -1,14 +1,14 @@
-module Channel;
+module Medium;
 import * from Event;
 export *;
 
-interface ChannelI {
+interface MediumI {
   Unit send(Event m);
   Event receive();
 }
 
 //if size = 0, then unbounded channel
-class Channel(Int size) implements ChannelI {
+class Medium(Int size) implements MediumI {
   List<Event> msgs = Nil;
   Unit send(Event m) {
       if (size == 0) msgs = appendright(msgs, m);

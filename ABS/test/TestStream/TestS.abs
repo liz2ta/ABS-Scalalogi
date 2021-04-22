@@ -4,7 +4,7 @@
 
 module TestS;
 
-import * from Channel;
+import * from Medium;
 import * from Event;
 import * from Stream;
 
@@ -13,8 +13,8 @@ import * from Stream;
   StreamM msgs2 = list[11,12,13,14,15,16,17,18,19,20];
   StreamM intermediate = Nil;
 
-  ChannelI c1 = new Channel(0);
-  ChannelI c2 = new Channel(0);
+  MediumI c1 = new Medium(0);
+  MediumI c2 = new Medium(0);
   InputStreamI ist = new InputStream(c1);
   OutputStreamI ost = new OutputStream(c2);
 
