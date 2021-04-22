@@ -1,5 +1,8 @@
-// to compile
+// to compile and test with a channel
 // absc --erlang test/TestStream/*.abs common/Channel/*.abs common/Stream/*.abs
+
+// to compile and test with messages
+// absc --erlang test/TestStream/*.abs common/Message/*.abs common/Stream/*.abs
 
 
 module TestS;

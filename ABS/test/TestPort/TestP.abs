@@ -1,5 +1,8 @@
-// to compile
+// to compile and test with a channel
 // absc --erlang test/TestPort/*.abs common/Channel/*.abs common/Stream/*.abs common/Port/*.abs
+
+// to compile and test with messages
+// absc --erlang test/TestPort/*.abs common/Message/*.abs common/Stream/*.abs common/Port/*.abs
 
 
 module TestP;
@@ -10,17 +13,15 @@ import * from Stream;
 import * from Port;
 
 {
-  StreamM msgs1 = list[1,2,3,4,5,6,7,8,9,10];
-  StreamM msgs2 = list[11,12,13,14,15,16,17,18,19,20];
+  StreamM msgs = list[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
   StreamM intermediate = Nil;
 
   MediumI c = new Medium(0);
   PortI p = new Port(c);
 
-   p!send(msgs1);
-  await duration(1,1);
+   p!send(msgs);
+   duration(1);
   intermediate = await p!receive();
-  await duration(1,1);
   Int size = length(intermediate);
   Int i = 0;
   Event m = 0;
@@ -31,21 +32,5 @@ import * from Port;
     println(`we have received $m$`);
     i = i+1;
   }
-  println(`we finished processing the first batch`);
-
-
-   p!send(msgs2);
-  await duration(1,1);
-  intermediate = await p!receive();
-  await duration(1,1);
-  size = length(intermediate);
-  i = 0;
-
-  while(i<size){
-    m = head(intermediate);
-    intermediate = tail(intermediate);
-    println(`we have received $m$`);
-    i = i+1;
-  }
-  println(`we finished processing the second batch`);
+  println(`we finished processing messages`);
 }

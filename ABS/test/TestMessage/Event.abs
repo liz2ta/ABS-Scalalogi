@@ -1,0 +1,4 @@
+module Event;
+export *;
+
+type Event = Int;

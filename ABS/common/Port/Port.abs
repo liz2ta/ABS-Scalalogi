@@ -26,7 +26,7 @@ class Port(MediumI c) implements PortI {
 
   Unit  send(StreamM st) {
     await setup;
-    await ost!deposit(st);
+    ost!deposit(st);
   }
 
   Unit run(){

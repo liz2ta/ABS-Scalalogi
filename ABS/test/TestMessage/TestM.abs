@@ -1,0 +1,36 @@
+// to compile
+// absc --erlang test/TestMessage/*.abs
+
+
+module Test;
+
+data Event = A | E | I | O | U ;
+
+def List<A> takeout<A>(List<A> list, Int n) =
+case list {
+    Nil => Nil
+    | Cons(h, t) =>
+        case n {
+            0  => Cons(h, t)
+          |  1  => t
+          | _ => Cons(h, takeout(t,n-1))}
+  };
+
+
+{
+  List<Event> msgs = list[A, E, I, O, U, A, E, I, O, U];
+  Int size = 0;
+  Int rdm = 0;
+  Event m = A;
+  while (msgs != Nil){
+    println(`we have $msgs$`);
+    size = length(msgs);
+    println(`we have  $size$ elements`);
+    rdm = random(size);
+    println(`we will chose the $rdm+1$ element`);
+    m = nth(msgs,rdm);
+    println(`we have chosen $m$`);
+    msgs = takeout(msgs,rdm+1);
+  }
+
+}

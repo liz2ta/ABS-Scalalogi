@@ -1,5 +1,8 @@
-// to compile
+// to compile and test with a channel
 // absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs examples/SingleWorkflowTweetPort/*.abs
+
+// to compile and test with messages
+// absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs examples/SingleWorkflowTweetPort/*.abs
 
 module TestTweet;
 
@@ -13,9 +16,9 @@ import * from StreamedMessages;
 // MAIN BLOCK
 
 {
-  MediumI c1 = new Medium(0);
-  MediumI c2 = new Medium(0);
-  MediumI c3 = new Medium(0);
+  MediumI c1 = new Medium(20);
+  MediumI c2 = new Medium(10);
+  MediumI c3 = new Medium(2);
 
   PortI p1 = new Port(c1);
   PortI p2 = new Port(c2);
@@ -34,7 +37,7 @@ import * from StreamedMessages;
   mapper!mapTweet();
   folder!fold();
   await s!stream1();
-  await duration(400,400);
+  await duration(40000,40000);
 
   println(`================RESULTS=================`);
   folder!printFolder();

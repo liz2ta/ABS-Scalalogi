@@ -1,8 +1,11 @@
-// to compile
+// to compile and test with a channel
 // absc --erlang test/TestChannel/*.abs common/Channel/*.abs
 
+// to compile and test with messages
+// absc --erlang test/TestChannel/*.abs common/Message/*.abs
 
-module TestC;
+
+module TestM;
 
 import * from Medium;
 import * from Event;
@@ -26,6 +29,7 @@ import * from Event;
     println(`we have sent $nth(msgs,i)$`);
     i = i+1;
   }*/
+  duration(1);
   println(`we finished the sending`);
   i = 0;
   while(i<size){

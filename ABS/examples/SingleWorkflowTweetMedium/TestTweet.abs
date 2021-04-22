@@ -1,5 +1,8 @@
-// to compile
+// to compile and test with a channel
 // absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Channel/*.abs
+
+// to compile and test with messages
+// absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Message/*.abs
 
 module TestTweet;
 
