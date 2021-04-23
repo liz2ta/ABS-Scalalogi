@@ -12,16 +12,22 @@ import * from Event;
 import * from Stream;
 import * from Port;
 
+class Tier() implements Tier {
+  Unit foo(){skip;}
+}
+
 {
   StreamM msgs = list[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
   StreamM intermediate = Nil;
 
-  MediumI c = new Medium(0);
-  PortI p = new Port(c);
+  PortI p = new Port();
+  Tier tier = new Tier();
 
-   p!send(msgs);
+  await p!connect(tier,0);
+
+   p!send(tier, msgs);
    duration(1);
-  intermediate = await p!receive();
+  intermediate = await p!receive(tier);
   Int size = length(intermediate);
   Int i = 0;
   Event m = 0;

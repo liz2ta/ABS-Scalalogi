@@ -19,16 +19,16 @@ import * from StreamedMessages;
   MediumI c3 = new Medium(0);
 
   InputI input = new Input(c1);
-  TweetFilterI filter = new TweetFilter(c1,c2);
-  TweetMapperI mapper = new TweetMapper(c2,c3);
-  TweetFolderI folder = new TweetFolder(c3);
+  FilterI filter = new Filter(c1,c2);
+  MapperI mapper = new Mapper(c2,c3);
+  FolderI folder = new Folder(c3);
 
   StreamMessagesI s = new StreamMessages(input);
 
   println(`================EXECUTION=================`);
-  filter!filterTweet("ht1");
-  mapper!mapTweet();
-  folder!fold();
+  filter!filtered("ht1");
+  mapper!mapped();
+  folder!folded();
 
   //test1
   await s!stream1();

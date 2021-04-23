@@ -7,27 +7,27 @@ import * from Event;
 import * from Stream;
 import * from Port;
 
-interface InputI {
+interface InputI extends Tier {
   Unit fire(Event t);
 }
 
-class Input(MediumI c) implements InputI {
+class Input(PortI p, Tier tier) implements InputI {
   Unit fire(Event t) {
-    c!send(t);
+    p!fire(tier,t);
   //  println(`Input has sent $t$`);
   }
 }
 
 
-interface TweetFilterI {
-  Unit filterTweet(Hashtag ht);
+interface FilterI extends Tier {
+  Unit filtered(Hashtag ht);
 }
 
-class TweetFilter(PortI p1, PortI p2) implements TweetFilterI {
-  Unit filterTweet(Hashtag ht) {
+class Filter(PortI p1, PortI p2, Tier tier) implements FilterI {
+  Unit filtered(Hashtag ht) {
     StreamM filter = Nil;
     duration(5,5);
-    StreamM st = await p1!receive();
+    StreamM st = await p1!receive(this);
     println(`Filter has received $st$`);
     foreach (m in st) {
       foreach (h in hashtags(m)) {
@@ -37,46 +37,46 @@ class TweetFilter(PortI p1, PortI p2) implements TweetFilterI {
         }
       }
     }
-    p2!send(filter);
+    p2!send(tier,filter);
     println(`Filter has sent $filter$`);
-    this!filterTweet(ht);
+    this!filtered(ht);
    }
 }
 
 
-interface TweetMapperI {
-  Unit mapTweet();
+interface MapperI extends Tier {
+  Unit mapped();
 }
 
-class TweetMapper(PortI p2, PortI p3) implements TweetMapperI {
-  Unit mapTweet() {
+class Mapper(PortI p2, PortI p3, Tier tier) implements MapperI {
+  Unit mapped() {
     StreamM map = Nil;
     duration(5,5);
-    StreamM st = await p2!receive();
+    StreamM st = await p2!receive(this);
     foreach (m in st) {
       map = appendright(map,Author(authorId(m)));
     }
-    p3!send(map);
+    p3!send(tier,map);
     println(`Mapper has sent $map$`);
-    this!mapTweet();
+    this!mapped();
   }
 }
 
-interface TweetFolderI  {
-  Unit fold();
+interface FolderI extends Tier  {
+  Unit folded();
   Unit printFolder();
 }
 
-class TweetFolder(PortI p3) implements TweetFolderI {
+class Folder(PortI p3) implements FolderI {
   Map<String,Int> folded = map[];
-  Unit fold() {
+  Unit folded() {
     duration(5,5);
-    StreamM st = await p3!receive();
+    StreamM st = await p3!receive(this);
     println(`==FOLDER HAS RECEIVED $st$==`);
     foreach (m in st) {
       folded = put(folded, authorId(m), lookupDefault(folded, authorId(m), 0)+1);
     }
-    this!fold();
+    this!folded();
   }
 
   Unit printFolder(){

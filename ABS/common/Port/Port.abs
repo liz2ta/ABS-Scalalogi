@@ -5,33 +5,51 @@ import * from Stream;
 
 export *;
 
+interface Tier{ }
 
 interface PortI {
-  StreamM receive();
-  Unit send(StreamM st);
+  StreamM receive(Tier tier);
+  Unit send(Tier tier, StreamM st);
+  Unit fire(Tier tier, Event m);
+  Unit connect (Tier tier, Int size);
 }
 
+class Port() implements PortI {
+  Map<Tier,MediumI> conn = map[];
+  Map<Tier,Bool> setup = map[];
+  Map<Tier,InputStreamI> ist = map[];
+  Map<Tier,OutputStreamI> ost = map[];
 
-class Port(MediumI c) implements PortI {
-  Bool setup = False;
-  InputStreamI ist = null;
-  OutputStreamI ost = null;
-
-  StreamM receive() {
-    await setup;
-    StreamM st = await ist!withdraw();
+  StreamM receive(Tier tier) {
+    await lookupDefault(setup, tier, False);
+    InputStreamI  i = lookupUnsafe(ist,tier);
+    StreamM st = await i!withdraw();
     return st;
   }
 
-
-  Unit  send(StreamM st) {
-    await setup;
-    ost!deposit(st);
+  Unit  send(Tier tier, StreamM st) {
+    await lookupDefault(setup, tier, False);
+    OutputStreamI o = lookupUnsafe(ost,tier);
+    o!deposit(st);
   }
 
-  Unit run(){
-    ist = new InputStream(c);
-    ost = new OutputStream(c);
-    setup = True;
+  Unit  fire(Tier tier, Event m) {
+    await lookupDefault(setup, tier, False);
+    OutputStreamI o = lookupUnsafe(ost,tier);
+    o!deposit(Cons(m,Nil));
+  }
+
+  Unit connect (Tier tier, Int size){
+    MediumI medium = new Medium(size);
+    conn = put(conn, tier, medium);
+  //  println(`connections: $conn$`);
+    InputStreamI i = new InputStream(medium);
+    OutputStreamI o = new OutputStream(medium);
+    ist = put(ist, tier, i);
+  //  println(`inputs: $ist$`);
+    ost = put(ost, tier, o);
+  //  println(`outputs: $ost$`);
+    setup = put(setup, tier, True);
+  //  println(`setups: $setup$`);
   }
 }

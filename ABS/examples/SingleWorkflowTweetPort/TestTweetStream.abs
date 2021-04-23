@@ -16,26 +16,25 @@ import * from StreamedMessages;
 // MAIN BLOCK
 
 {
-  MediumI c1 = new Medium(20);
-  MediumI c2 = new Medium(10);
-  MediumI c3 = new Medium(2);
+  PortI p1 = new Port();
+  PortI p2 = new Port();
+  PortI p3 = new Port();
 
-  PortI p1 = new Port(c1);
-  PortI p2 = new Port(c2);
-  PortI p3 = new Port(c3);
+  FolderI folder = new Folder(p3); // folder in p3
+  MapperI mapper = new Mapper(p2,p3,folder); // mapper in p2 onnects to folder in p3
+  FilterI filter = new Filter(p1,p2,mapper); // filter in p1 connects to mapper in p2
+  InputI input = new Input(p1,filter);  // input connects to filter in p1
 
-  InputI input = new Input(c1);
-
-  TweetFilterI filter = new TweetFilter(p1,p2);
-  TweetMapperI mapper = new TweetMapper(p2,p3);
-  TweetFolderI folder = new TweetFolder(p3);
+  await p1!connect(filter,20); // from input to filter
+  await p2!connect(mapper,10); // from filter to mapper
+  await p3!connect(folder,2); // from mapper to folder
 
   StreamMessagesI s = new StreamMessages(input);
 
   println(`================EXECUTION=================`);
-  filter!filterTweet("ht1");
-  mapper!mapTweet();
-  folder!fold();
+  filter!filtered("ht1");
+  mapper!mapped();
+  folder!folded();
   await s!stream1();
   await duration(40000,40000);
 
