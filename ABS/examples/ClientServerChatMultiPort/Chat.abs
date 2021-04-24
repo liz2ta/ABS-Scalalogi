@@ -1,0 +1,103 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+module Chat;
+export *;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+
+interface ClientI extends Tier {
+  Unit connect(PortI p, Tier t);
+  Unit fire(String t);
+  Unit listen();
+  Unit print();
+}
+
+class Client(String name) implements ClientI {
+  PortI port = null;
+  List<String> chatlog = Nil;
+  Tier tier = null;
+  Int i = 0;
+
+  Unit connect(PortI p, Tier t){
+    tier = t;
+    port = p;
+  }
+
+  Unit fire(String t) {
+    await port != null;
+    i = i+1;
+    String message = ` $name$: [$i$] $t$ `;
+    Event line = Line(this,message);
+    chatlog = appendright(chatlog,message);
+    await port!fire(tier,line);
+  }
+
+  Unit listen(){
+    await port != null;
+    StreamM chat = await port!receive(this);
+    Int i = 0;
+    Int size = length(chat);
+    while (i<size) {
+      chatlog = appendright(chatlog,msg(nth(chat,i)));
+      i = i+1;
+    }
+    this!listen();
+  }
+
+  Unit print(){
+    println(`Chat window for  $name$ ::: $chatlog$`);
+  }
+}
+
+
+interface ServerI extends Tier {
+  Unit connectPort(PortI p);
+  Unit connectTier(Tier t);
+  Unit broadcast();
+  Unit print();
+}
+
+class Server(String name) implements ServerI {
+  PortI port = null;
+  List<String> chatlog = Nil;
+  List<Tier> tiers = Nil;
+
+  Unit connectPort(PortI p){
+    port = p;
+  }
+
+  Unit connectTier(Tier t){
+    tiers = appendright(tiers,t);
+  }
+
+  Unit broadcast(){
+    await port != null;
+    await tiers != Nil;
+    StreamM chat = await port!receive(this);
+    Int  size = length(chat);
+    Int i = 0;
+    while (i<size) {
+      chatlog = appendright(chatlog,msg(nth(chat,i)));
+      i = i+1;
+    }
+    foreach (tier in tiers){
+      i = 0;
+      while (i<size) {
+        if (authorId(nth(chat,i)) != tier) await port!fire(tier, nth(chat,i));
+        i = i+1;
+      }
+    }
+    this!broadcast();
+  }
+
+  Unit print(){
+    println(`Chat window for  $name$ ::: $chatlog$`);
+  }
+
+}

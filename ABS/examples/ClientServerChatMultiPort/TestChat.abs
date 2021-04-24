@@ -1,0 +1,90 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+/*
+to compile and test with a channel
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs examples/ClientServerChatMultiPort/*.abs
+
+to compile and test with messages
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs examples/ClientServerChatMultiPort/*.abs
+*/
+
+module TestChat;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Chat;
+import * from StreamedMessages;
+
+// MAIN BLOCK
+
+{
+  PortI p = new Port();
+  ServerI server = new Server("Server");
+  ClientI english = new Client("English");
+  //ClientI norwegian = new Client("Norwegian");
+  //ClientI spanish = new Client("Spanish");
+  //ClientI italian = new Client("Italian");
+  //ClientI german = new Client("German");
+
+  await p!connect(server,0);
+  await p!connect(english,0);
+  //await p!connect(norwegian,0);
+  //await p!connect(spanish,0);
+  //await p!connect(italian,0);
+  //await p!connect(german,0);
+
+
+
+  await english!connect(p,server);
+  //await norwegian!connect(p,server);
+  //await spanish!connect(p,server);
+  //await italian!connect(p,server);
+  //await german!connect(p,server);
+
+  await server!connectTier(english);
+  //await server!connectTier(norwegian);
+  //await server!connectTier(spanish);
+  //await server!connectTier(italian);
+  //await server!connectTier(german);
+
+  await server!connectPort(p);
+
+
+  StreamMessagesI ste = new StreamMessages(english);
+  //StreamMessagesI stn = new StreamMessages(norwegian);
+  //StreamMessagesI sts = new StreamMessages(spanish);
+  //StreamMessagesI sti = new StreamMessages(italian);
+  //StreamMessagesI stg = new StreamMessages(german);
+
+  println(`================EXECUTION=================`);
+  server!broadcast();
+
+  english!listen();
+  //norwegian!listen();
+  //spanish!listen();
+  //italian!listen();
+  //german!listen();
+
+  ste!chatline(English);
+  //stn!chatline(Norwegian);
+  //sts!chatline(Spanish);
+  //sti!chatline(Italian);
+  //stg!chatline(German);
+
+
+  await duration(40000,40000);
+
+  println(`================RESULTS=================`);
+  await server!print();
+  await english!print();
+  //await norwegian!print();
+  //await spanish!print();
+  //await italian!print();
+  //await german!print();
+
+}

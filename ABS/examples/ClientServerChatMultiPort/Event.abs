@@ -1,0 +1,14 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+module Event;
+
+import * from Medium;
+import * from Stream;
+import * from Port;
+
+export *;
+
+data Event = Line( Tier authorId , String msg);
