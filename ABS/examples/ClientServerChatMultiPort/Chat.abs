@@ -11,14 +11,17 @@ import * from Event;
 import * from Stream;
 import * from Port;
 
+data Language = English | Norwegian | Spanish | Italian | German;
+
 interface ClientI extends Tier {
   Unit connect(PortI p, Tier t);
   Unit fire(String t);
   Unit listen();
+  Language getLanguage();
   Unit print();
 }
 
-class Client(String name) implements ClientI {
+class Client(String name, Language lang ) implements ClientI {
   PortI port = null;
   List<String> chatlog = Nil;
   Tier tier = null;
@@ -49,6 +52,8 @@ class Client(String name) implements ClientI {
     }
     this!listen();
   }
+
+  Language getLanguage(){return lang;}
 
   Unit print(){
     println(`Chat window for  $name$ ::: $chatlog$`);

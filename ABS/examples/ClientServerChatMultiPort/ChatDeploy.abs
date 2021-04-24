@@ -1,0 +1,41 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+module ChatDeploy;
+export *;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Chat;
+import * from ChatLoadClient;
+
+
+interface ChatDeployI {
+  //manual stream
+  Unit deploy();
+}
+
+class ChatDeploy(ServerI server, List<ClientI> clients) implements ChatDeployI {
+
+  Unit deploy() {
+    PortI p = new Port();
+
+    await p!connect(server,0);
+
+    foreach (client in clients){
+      await p!connect(client,0);
+      await client!connect(p,server);
+      await server!connectTier(client);
+    }
+    await server!connectPort(p);
+
+    server!broadcast();
+    foreach (client in clients){
+      client!listen();
+    }
+  }
+}

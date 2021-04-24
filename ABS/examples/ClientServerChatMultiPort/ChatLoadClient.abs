@@ -3,7 +3,7 @@ Chat example, inspired by the scalalogi client - server chat example
 FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 ************************************/
 
-module StreamedMessages;
+module ChatLoadClient;
 export *;
 
 import * from Event;
@@ -11,16 +11,16 @@ import * from Stream;
 import * from Port;
 import * from Chat;
 
-data Language = English | Norwegian | Spanish | Italian | German;
 
-interface StreamMessagesI {
+
+interface ChatLoadI {
   //manual stream
-  Unit chatline(Language lang);
+  Unit chatline();
 }
 
-class StreamMessages(ClientI client) implements StreamMessagesI {
+class ChatLoad(ClientI client, Language lang) implements ChatLoadI {
 
-  Unit chatline(Language lang) {
+  Unit chatline() {
     List<String> e = list["Hello", "world", "how", "are","you", "today"];
     List<String> n = list["Hei", "verden", "hvordan", "gaer", "det", "med", "deg", "i", "dag"];
     List<String> s = list["Hola", "mundo", "como", "estan", "hoy"];
@@ -28,28 +28,28 @@ class StreamMessages(ClientI client) implements StreamMessagesI {
     List<String> g = list["Hallo", "welt", "wie", "geht", "es", "dir", "heute"];
     List<String> msgs = Nil;
 
-  switch (lang) {
-    English => {msgs = e; }
-    Norwegian => {msgs = n; }
-    Spanish => {msgs = s; }
-    Italian => {msgs = i; }
-    German => {msgs = g; }
-  }
-
-  Int counter = 1;
-  Int i1 = 0;
-  Int i2 = 0;
-  Int size = length(msgs);
-
-    while (i1<counter) {
-      while (i2 < size){
-        await client!fire(nth(msgs,i2));
-        i2 = i2+1;
-        //println(`we have input $m$`);
-      }
-      i2 = 0;
-      duration(i1,i1);
-      i1 = i1+1;
+    switch (lang) {
+      English => {msgs = e; }
+      Norwegian => {msgs = n; }
+      Spanish => {msgs = s; }
+      Italian => {msgs = i; }
+      German => {msgs = g; }
     }
-  }
+
+    Int counter = 1;
+    Int i1 = 0;
+    Int i2 = 0;
+    Int size = length(msgs);
+
+      while (i1<counter) {
+        while (i2 < size){
+          await client!fire(nth(msgs,i2));
+          i2 = i2+1;
+          //println(`we have input $m$`);
+        }
+        i2 = 0;
+        duration(i1,i1);
+        i1 = i1+1;
+      }
+    }
 }

@@ -18,73 +18,45 @@ import * from Event;
 import * from Stream;
 import * from Port;
 import * from Chat;
-import * from StreamedMessages;
+import * from ChatLoadClient;
+import * from ChatDeploy;
 
 // MAIN BLOCK
 
 {
-  PortI p = new Port();
   ServerI server = new Server("Server");
-  ClientI english = new Client("English");
-  //ClientI norwegian = new Client("Norwegian");
-  //ClientI spanish = new Client("Spanish");
-  //ClientI italian = new Client("Italian");
-  //ClientI german = new Client("German");
+  List<ClientI> clients = Nil;
+  ClientI c = null;
 
-  await p!connect(server,0);
-  await p!connect(english,0);
-  //await p!connect(norwegian,0);
-  //await p!connect(spanish,0);
-  //await p!connect(italian,0);
-  //await p!connect(german,0);
-
-
-
-  await english!connect(p,server);
-  //await norwegian!connect(p,server);
-  //await spanish!connect(p,server);
-  //await italian!connect(p,server);
-  //await german!connect(p,server);
-
-  await server!connectTier(english);
-  //await server!connectTier(norwegian);
-  //await server!connectTier(spanish);
-  //await server!connectTier(italian);
-  //await server!connectTier(german);
-
-  await server!connectPort(p);
+  c = new Client("English",English);
+  clients = appendright(clients,c);
+//  c = new Client("Norwegian",Norwegian);
+//  clients = appendright(clients,c);
+//  c = new Client("Spanish",Spanish);
+//  clients = appendright(clients,c);
+//  c = new Client("Italian",Italian);
+//  clients = appendright(clients,c);
+//  c = new Client("German",German);
+//  clients = appendright(clients,c);
 
 
-  StreamMessagesI ste = new StreamMessages(english);
-  //StreamMessagesI stn = new StreamMessages(norwegian);
-  //StreamMessagesI sts = new StreamMessages(spanish);
-  //StreamMessagesI sti = new StreamMessages(italian);
-  //StreamMessagesI stg = new StreamMessages(german);
+   ChatDeployI dp = new ChatDeploy(server,clients);
+   await dp!deploy();
 
-  println(`================EXECUTION=================`);
-  server!broadcast();
+   ChatLoadI st = null;
+   Language lang = English;
+   foreach (client in clients){
+     lang = await client!getLanguage();
+     st = new ChatLoad(client,lang);
+     st!chatline();
+   }
 
-  english!listen();
-  //norwegian!listen();
-  //spanish!listen();
-  //italian!listen();
-  //german!listen();
+   await duration(40000,40000);
 
-  ste!chatline(English);
-  //stn!chatline(Norwegian);
-  //sts!chatline(Spanish);
-  //sti!chatline(Italian);
-  //stg!chatline(German);
-
-
-  await duration(40000,40000);
-
-  println(`================RESULTS=================`);
-  await server!print();
-  await english!print();
-  //await norwegian!print();
-  //await spanish!print();
-  //await italian!print();
-  //await german!print();
+   println(`================RESULTS=================`);
+   await server!print();
+   foreach (client in clients){
+     await client!print();
+   }
 
 }
