@@ -1,0 +1,34 @@
+/*************************************
+Port connection implementation
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+module Connect;
+export *;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+
+
+interface ConnectI {
+  //manual stream
+  Unit oneManyConnect(Tier one, List<Tier> many, PortI p);
+}
+
+class Connect() implements ConnectI {
+
+  Unit oneManyConnect(Tier one, List<Tier> many, PortI p) {
+
+    await p!connect(one,0);
+
+    foreach (tier in many){
+      await p!connect(tier,0);
+      await tier!connectTier(one);
+      await tier!connectPort(p);
+      await one!connectTier(tier);
+    }
+    await one!connectPort(p);
+  }
+}
