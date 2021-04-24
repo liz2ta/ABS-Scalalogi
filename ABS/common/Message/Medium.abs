@@ -1,3 +1,8 @@
+/*************************************
+Unordered medium  implementation
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
 module Medium;
 import * from Event;
 export *;

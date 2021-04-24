@@ -1,4 +1,7 @@
-
+/*************************************
+Tweet example without ports, inspired by the scalalogy pipeline example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
 
 module StreamedMessages;
 export *;

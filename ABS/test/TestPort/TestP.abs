@@ -1,9 +1,16 @@
-// to compile and test with a channel
-// absc --erlang test/TestPort/*.abs common/Channel/*.abs common/Stream/*.abs common/Port/*.abs
+/*************************************
+Test for port implementation
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
 
-// to compile and test with messages
-// absc --erlang test/TestPort/*.abs common/Message/*.abs common/Stream/*.abs common/Port/*.abs
+/*
+to compile and test with a channel
+absc --erlang test/TestPort/*.abs common/Channel/*.abs common/Stream/*.abs common/Port/*.abs
 
+to compile and test with messages
+absc --erlang test/TestPort/*.abs common/Message/*.abs common/Stream/*.abs common/Port/*.abs
+
+*/
 
 module TestP;
 

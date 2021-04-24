@@ -1,8 +1,15 @@
-// to compile and test with a channel
-// absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Channel/*.abs
+/*************************************
+Tweet example without ports, inspired by the scalalogy pipeline example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
 
-// to compile and test with messages
-// absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Message/*.abs
+/*
+to compile and test with a channel
+absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Channel/*.abs
+
+to compile and test with messages
+absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Message/*.abs
+*/
 
 module TestTweet;
 

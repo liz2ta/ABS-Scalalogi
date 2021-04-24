@@ -1,3 +1,9 @@
+/*************************************
+Test for stream implementation inspired by the places of scalalogy
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+
 module Event;
 export *;
 
