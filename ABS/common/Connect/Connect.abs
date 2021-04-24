@@ -14,21 +14,21 @@ import * from Port;
 
 interface ConnectI {
   //manual stream
-  Unit oneManyConnect(Tier one, List<Tier> many, PortI p);
+  Unit oneManyConnect(Tier one, List<Tier> many, PortI port);
 }
 
 class Connect() implements ConnectI {
 
-  Unit oneManyConnect(Tier one, List<Tier> many, PortI p) {
+  Unit oneManyConnect(Tier one, List<Tier> many, PortI port) {
 
-    await p!connect(one,0);
+    await port!connect(one,0);
 
     foreach (tier in many){
-      await p!connect(tier,0);
+      await port!connect(tier,0);
       await tier!connectTier(one);
-      await tier!connectPort(p);
+      await tier!connectPort(port);
       await one!connectTier(tier);
     }
-    await one!connectPort(p);
+    await one!connectPort(port);
   }
 }
