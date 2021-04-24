@@ -11,14 +11,14 @@ import * from Stream;
 import * from Port;
 import * from Chat;
 
-
+data Language = English | Norwegian | Spanish | Italian | German;
 
 interface ChatLoadI {
   //manual stream
   Unit chatline();
 }
 
-class ChatLoad(ClientI client, Language lang) implements ChatLoadI {
+class ChatLoad(ClientI client, Int iterator) implements ChatLoadI {
 
   Unit chatline() {
     List<String> e = list["Hello", "world", "how", "are","you", "today"];
@@ -28,7 +28,11 @@ class ChatLoad(ClientI client, Language lang) implements ChatLoadI {
     List<String> g = list["Hallo", "welt", "wie", "geht", "es", "dir", "heute"];
     List<String> msgs = Nil;
 
-    switch (lang) {
+    List<Language> lang = list[English, Norwegian,Spanish,Italian,German];
+    Int langsz = length(lang);
+    Language l = English;
+    if (iterator<langsz) l = nth(lang,iterator);
+    switch (l) {
       English => {msgs = e; }
       Norwegian => {msgs = n; }
       Spanish => {msgs = s; }

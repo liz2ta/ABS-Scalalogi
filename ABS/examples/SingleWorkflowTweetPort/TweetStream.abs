@@ -17,6 +17,10 @@ interface InputI extends Tier {
 }
 
 class Input(PortI p, Tier tier) implements InputI {
+
+  Unit connectTier(Tier t){skip;}
+  Unit connectPort(PortI p){skip;}
+
   Unit fire(Event t) {
     p!fire(tier,t);
   //  println(`Input has sent $t$`);
@@ -29,6 +33,10 @@ interface FilterI extends Tier {
 }
 
 class Filter(PortI p1, PortI p2, Tier tier) implements FilterI {
+
+  Unit connectTier(Tier t){skip;}
+  Unit connectPort(PortI p){skip;}
+
   Unit filtered(Hashtag ht) {
     StreamM filter = Nil;
     duration(5,5);
@@ -54,6 +62,10 @@ interface MapperI extends Tier {
 }
 
 class Mapper(PortI p2, PortI p3, Tier tier) implements MapperI {
+
+  Unit connectTier(Tier t){skip;}
+  Unit connectPort(PortI p){skip;}
+
   Unit mapped() {
     StreamM map = Nil;
     duration(5,5);
@@ -74,6 +86,10 @@ interface FolderI extends Tier  {
 
 class Folder(PortI p3) implements FolderI {
   Map<String,Int> folded = map[];
+
+  Unit connectTier(Tier t){skip;}
+  Unit connectPort(PortI p){skip;}
+  
   Unit folded() {
     duration(5,5);
     StreamM st = await p3!receive(this);
