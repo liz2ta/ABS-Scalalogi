@@ -1,0 +1,54 @@
+/*************************************
+Tweet example, inspired by the scalalogy pipeline example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+/*
+to compile and test with a channel
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs examples/PipelinePort/*.abs
+
+to compile and test with messages
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs examples/PipelinePort/*.abs
+*/
+
+module PipelinePortDeploy;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Connect;
+import * from PipelinePort;
+import * from PipelinePortLoad;
+
+// MAIN BLOCK
+
+{
+  PortI p1 = new Port();
+  PortI p2 = new Port();
+  PortI p3 = new Port();
+
+  InputI input = new Input();
+  FilterI filter = new Filter();
+  MapperI mapper = new Mapper();
+  FolderI folder = new Folder();
+
+  ConnectI dp = new Connect();
+
+  await dp!connectToFrom(input,filter,p1);// input connects to filter in p1
+  await dp!connectToFrom(filter,mapper,p2);// filter connects to mapper in p2
+  await dp!connectToFrom(mapper,folder,p3);// mapper onnects to folder in p3
+
+  PipelineLoadI pl = new PipelineLoad(input);
+
+  println(`================EXECUTION=================`);
+  filter!filtered("ht1");
+  mapper!mapped();
+  folder!folded();
+  await pl!stream();
+  await duration(40000,40000);
+
+  println(`================RESULTS=================`);
+  folder!printFolder();
+
+}

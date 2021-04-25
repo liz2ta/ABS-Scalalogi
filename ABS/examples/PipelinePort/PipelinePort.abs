@@ -4,7 +4,7 @@ FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 ************************************/
 
 
-module TweetStream;
+module PipelinePort;
 export *;
 
 import * from Medium;
@@ -16,13 +16,19 @@ interface InputI extends Tier {
   Unit fire(Event t);
 }
 
-class Input(PortI p, Tier tier) implements InputI {
+class Input() implements InputI {
 
-  Unit connectTier(Tier t){skip;}
-  Unit connectPort(PortI p){skip;}
+  PortI port = null;
+  Tier tier = null;
 
-  Unit fire(Event t) {
-    p!fire(tier,t);
+  Unit connectToTier(Tier t){tier = t;}
+  Unit connectToPort(PortI p){port = p;}
+  Unit connectFromPort(PortI p){skip;}
+
+  Unit fire(Event tweet) {
+    await tier != null;
+    await port != null;
+    port!fire(tier,tweet);
   //  println(`Input has sent $t$`);
   }
 }
@@ -32,15 +38,20 @@ interface FilterI extends Tier {
   Unit filtered(Hashtag ht);
 }
 
-class Filter(PortI p1, PortI p2, Tier tier) implements FilterI {
+class Filter() implements FilterI {
+  PortI portFrom = null;
+  PortI portTo = null;
+  Tier tier = null;
 
-  Unit connectTier(Tier t){skip;}
-  Unit connectPort(PortI p){skip;}
+  Unit connectToTier(Tier t){tier = t;}
+  Unit connectToPort(PortI p){portTo = p;}
+  Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit filtered(Hashtag ht) {
     StreamM filter = Nil;
     duration(5,5);
-    StreamM st = await p1!receive(this);
+    await portFrom != null;
+    StreamM st = await portFrom!receive(this);
     println(`Filter has received $st$`);
     foreach (m in st) {
       foreach (h in hashtags(m)) {
@@ -50,7 +61,9 @@ class Filter(PortI p1, PortI p2, Tier tier) implements FilterI {
         }
       }
     }
-    p2!send(tier,filter);
+    await tier != null;
+    await portTo != null;
+    portTo!send(tier,filter);
     println(`Filter has sent $filter$`);
     this!filtered(ht);
    }
@@ -61,19 +74,24 @@ interface MapperI extends Tier {
   Unit mapped();
 }
 
-class Mapper(PortI p2, PortI p3, Tier tier) implements MapperI {
+class Mapper() implements MapperI {
+  PortI portFrom = null;
+  PortI portTo = null;
+  Tier tier = null;
 
-  Unit connectTier(Tier t){skip;}
-  Unit connectPort(PortI p){skip;}
+  Unit connectToTier(Tier t){tier = t;}
+  Unit connectToPort(PortI p){portTo = p;}
+  Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit mapped() {
     StreamM map = Nil;
     duration(5,5);
-    StreamM st = await p2!receive(this);
+    await portFrom != null;
+    StreamM st = await portFrom!receive(this);
     foreach (m in st) {
       map = appendright(map,Author(authorId(m)));
     }
-    p3!send(tier,map);
+    portTo!send(tier,map);
     println(`Mapper has sent $map$`);
     this!mapped();
   }
@@ -84,15 +102,18 @@ interface FolderI extends Tier  {
   Unit printFolder();
 }
 
-class Folder(PortI p3) implements FolderI {
+class Folder() implements FolderI {
+  PortI portFrom = null;
   Map<String,Int> folded = map[];
 
-  Unit connectTier(Tier t){skip;}
-  Unit connectPort(PortI p){skip;}
-  
+  Unit connectToTier(Tier t){skip;}
+  Unit connectToPort(PortI p){skip;}
+  Unit connectFromPort(PortI p){portFrom = p;}
+
   Unit folded() {
     duration(5,5);
-    StreamM st = await p3!receive(this);
+    await portFrom != null;
+    StreamM st = await portFrom!receive(this);
     println(`==FOLDER HAS RECEIVED $st$==`);
     foreach (m in st) {
       folded = put(folded, authorId(m), lookupDefault(folded, authorId(m), 0)+1);

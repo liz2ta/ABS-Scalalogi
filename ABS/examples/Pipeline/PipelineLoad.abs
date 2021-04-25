@@ -3,20 +3,20 @@ Tweet example without ports, inspired by the scalalogy pipeline example
 FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 ************************************/
 
-module StreamedMessages;
+module PipelineLoad;
 export *;
 
 import * from Event;
-import * from Tweet;
+import * from Pipeline;
 
-interface StreamMessagesI {
+interface PipleineLoadI {
   //manual stream
-  Unit stream1();
+  Unit stream();
 }
 
-class StreamMessages(InputI input) implements StreamMessagesI {
+class PipelineLoad(InputI input) implements PipleineLoadI {
 
-  Unit stream1() {
+  Unit stream() {
     List<Event> msgs = list[
             Tweet("author1", list["ht1","ht2"]),
             Tweet("author2", list["ht3"]),

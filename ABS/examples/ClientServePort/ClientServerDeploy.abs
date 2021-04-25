@@ -5,21 +5,21 @@ FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 
 /*
 to compile and test with a channel
-absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerChatMultiPort/*.abs
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs
 
 to compile and test with unordered messages
-absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerChatMultiPort/*.abs
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs
 */
 
-module ChatDeploy;
+module ClientServerDeploy;
 
 import * from Medium;
 import * from Event;
 import * from Stream;
 import * from Port;
 import * from Connect;
-import * from Chat;
-import * from ChatLoadClient;
+import * from ClientServer;
+import * from ClientServerLoad;
 
 
 // MAIN BLOCK

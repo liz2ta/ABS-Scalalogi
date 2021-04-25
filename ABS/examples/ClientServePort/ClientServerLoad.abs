@@ -3,13 +3,13 @@ Chat example, inspired by the scalalogi client - server chat example
 FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 ************************************/
 
-module ChatLoadClient;
+module ClientServerLoad;
 export *;
 
 import * from Event;
 import * from Stream;
 import * from Port;
-import * from Chat;
+import * from ClientServer;
 
 data Language = English | Norwegian | Spanish | Italian | German;
 

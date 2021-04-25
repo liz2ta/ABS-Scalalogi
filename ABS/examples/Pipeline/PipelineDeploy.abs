@@ -5,18 +5,18 @@ FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 
 /*
 to compile and test with a channel
-absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Channel/*.abs
+absc --erlang examples/Pipeline/*.abs common/Channel/*.abs
 
 to compile and test with messages
-absc --erlang examples/SingleWorkflowTweetMedium/*.abs common/Message/*.abs
+absc --erlang examples/Pipeline/*.abs common/Message/*.abs
 */
 
-module TestTweet;
+module PipelineDeploy;
 
 import * from Medium;
 import * from Event;
-import * from Tweet;
-import * from StreamedMessages;
+import * from Pipeline;
+import * from PipelineLoad;
 
 // MAIN BLOCK
 
@@ -30,7 +30,7 @@ import * from StreamedMessages;
   MapperI mapper = new Mapper(c2,c3);
   FolderI folder = new Folder(c3);
 
-  StreamMessagesI s = new StreamMessages(input);
+  PipleineLoadI pl = new PipelineLoad(input);
 
   println(`================EXECUTION=================`);
   filter!filtered("ht1");
@@ -38,11 +38,11 @@ import * from StreamedMessages;
   folder!folded();
 
   //test1
-  await s!stream1();
+  await pl!stream();
   await duration(100,100);
   folder!printFolder();
   //extend test1
-  await s!stream1();
+  await pl!stream();
   await duration(200,200);
   folder!printFolder();
 

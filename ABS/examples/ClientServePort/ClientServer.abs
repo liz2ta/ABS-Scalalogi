@@ -3,7 +3,7 @@ Chat example, inspired by the scalalogi client - server chat example
 FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 ************************************/
 
-module Chat;
+module ClientServer;
 export *;
 
 import * from Medium;
@@ -23,15 +23,9 @@ class Client(String name) implements ClientI {
   Tier tier = null;
   Int i = 0;
 
-
-  Unit connectTier(Tier t){
-    tier = t;
-  }
-
-  Unit connectPort(PortI p){
-    port = p;
-  }
-
+  Unit connectToTier(Tier t){tier = t;}
+  Unit connectToPort(PortI p){port = p;}
+  Unit connectFromPort(PortI p){skip;}
 
   Unit fire(String t) {
     await port != null;
@@ -70,13 +64,9 @@ class Server(String name) implements ServerI {
   List<String> chatlog = Nil;
   List<Tier> tiers = Nil;
 
-  Unit connectPort(PortI p){
-    port = p;
-  }
-
-  Unit connectTier(Tier t){
-    tiers = appendright(tiers,t);
-  }
+  Unit connectToPort(PortI p){port = p;}
+  Unit connectToTier(Tier t){tiers = appendright(tiers,t);}
+  Unit connectFromPort(PortI p){skip;}
 
   Unit broadcast(){
     await port != null;
