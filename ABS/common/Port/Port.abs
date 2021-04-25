@@ -12,8 +12,9 @@ import * from Stream;
 export *;
 
 interface Tier{
-  Unit connectTier(Tier t);
-  Unit connectPort(PortI p);
+  Unit connectToTier(Tier t);
+  Unit connectToPort(PortI p);
+  Unit connectFromPort(PortI p);
 }
 
 interface PortI {
