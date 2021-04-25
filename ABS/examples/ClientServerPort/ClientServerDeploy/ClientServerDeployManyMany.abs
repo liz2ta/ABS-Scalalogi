@@ -1,0 +1,81 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+/*
+to compile and test with a channel
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyMany.abs
+
+to compile and test with unordered messages
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyMany.abs
+*/
+
+module ClientServerDeployManyMany;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Connect;
+import * from ClientServer;
+import * from ClientServerLoad;
+
+
+// MAIN BLOCK
+
+{
+  List<ServerI> servers = Nil;
+  List<ClientI> clients = Nil;
+  PortI port = new Port();
+  ClientI c = null;
+  ServerI s = null;
+
+  s =  new Server("Server1");
+  servers = appendright(servers,s);
+//  s =  new Server("Server2");
+//  servers = appendright(servers,s);
+
+  c = new Client("English");
+  clients = appendright(clients,c);
+//  c = new Client("Norwegian");
+//  clients = appendright(clients,c);
+//  c = new Client("Spanish");
+//  clients = appendright(clients,c);
+//  c = new Client("Italian");
+//  clients = appendright(clients,c);
+//  c = new Client("German");
+//  clients = appendright(clients,c);
+
+   ConnectI dp = new Connect();
+   await dp!manyManyConnect(servers,clients,port);
+
+   foreach (server in servers){
+     server!broadcast();
+   }
+   foreach (client in clients){
+     client!listen();
+   }
+
+   ChatLoadI st = null;
+   Int i = 0;
+   Int size = length(clients);
+   while (i < size){
+     c = nth(clients, i);
+     st = new ChatLoad(c,i);
+     st!chatline();
+     i = i+1;
+   }
+
+   await duration(40000,40000);
+
+   println(`================RESULTS=================`);
+
+   foreach (server in servers){
+     await server!print();
+   }
+   foreach (client in clients){
+     await client!print();
+   }
+
+}

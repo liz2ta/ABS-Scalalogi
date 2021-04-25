@@ -1,0 +1,47 @@
+/*************************************
+Chat example, inspired by the scalalogi client - server chat example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+/*
+to compile and test with a channel
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployOneOne.abs
+
+to compile and test with unordered messages
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployOneOne.abs
+*/
+
+module ClientServerDeployOneOne;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Connect;
+import * from ClientServer;
+import * from ClientServerLoad;
+
+
+// MAIN BLOCK
+
+{
+  PortI port = new Port();
+  ServerI server = new Server("Server");
+  ClientI client = new Client("Client");
+
+  ConnectI dp = new Connect();
+  await dp!connect(client,server,port);
+
+  server!broadcast();
+  client!listen();
+
+  ChatLoadI st = new ChatLoad(client,0);
+  st!chatline();
+
+  await duration(40000,40000);
+
+  println(`================RESULTS=================`);
+
+  await server!print();
+  await client!print();
+}

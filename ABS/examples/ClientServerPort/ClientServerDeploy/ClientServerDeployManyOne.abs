@@ -5,13 +5,13 @@ FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 
 /*
 to compile and test with a channel
-absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
 
 to compile and test with unordered messages
-absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
 */
 
-module ClientServerDeploy;
+module ClientServerDeployManyOne;
 
 import * from Medium;
 import * from Event;
@@ -25,21 +25,15 @@ import * from ClientServerLoad;
 // MAIN BLOCK
 
 {
-  List<ServerI> servers = Nil;
+  ServerI server = new Server("Server");
   List<ClientI> clients = Nil;
   PortI port = new Port();
   ClientI c = null;
-  ServerI s = null;
-
-  s =  new Server("Server1");
-  servers = appendright(servers,s);
-//  s =  new Server("Server2");
-//  servers = appendright(servers,s);
 
   c = new Client("English");
   clients = appendright(clients,c);
-//  c = new Client("Norwegian");
-//  clients = appendright(clients,c);
+  c = new Client("Norwegian");
+  clients = appendright(clients,c);
 //  c = new Client("Spanish");
 //  clients = appendright(clients,c);
 //  c = new Client("Italian");
@@ -48,11 +42,9 @@ import * from ClientServerLoad;
 //  clients = appendright(clients,c);
 
    ConnectI dp = new Connect();
-   await dp!manyManyConnect(servers,clients,port);
+   await dp!manyOneConnect(clients,server,port);
 
-   foreach (server in servers){
-     server!broadcast();
-   }
+   server!broadcast();
    foreach (client in clients){
      client!listen();
    }
@@ -71,9 +63,7 @@ import * from ClientServerLoad;
 
    println(`================RESULTS=================`);
 
-   foreach (server in servers){
-     await server!print();
-   }
+   await server!print();
    foreach (client in clients){
      await client!print();
    }
