@@ -18,27 +18,29 @@ interface ClientI extends Tier {
 }
 
 class Client(String name) implements ClientI {
-  PortI port = null;
+  PortI portFrom = null;
+  PortI portTo = null;
   List<String> chatlog = Nil;
-  Tier tier = null;
+  List<Tier> tiers = Nil;
   Int i = 0;
 
-  Unit connectToTier(Tier t){tier = t;}
-  Unit connectToPort(PortI p){port = p;}
-  Unit connectFromPort(PortI p){skip;}
+  Unit connectToTier(Tier t){tiers = appendright(tiers,t);}
+  Unit connectToPort(PortI p){portTo = p;}
+  Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit fire(String t) {
-    await port != null;
+    await portTo != null;
+    await tiers != Nil;
     i = i+1;
     String message = ` $name$: [$i$] $t$ `;
     Event line = Line(this,message);
     chatlog = appendright(chatlog,message);
-    await port!fire(tier,line);
+    foreach (tier in tiers){await portTo!fire(tier,line);}
   }
 
   Unit listen(){
-    await port != null;
-    StreamM chat = await port!receive(this);
+    await portFrom != null;
+    StreamM chat = await portFrom!receive(this);
     Int i = 0;
     Int size = length(chat);
     while (i<size) {
@@ -60,28 +62,30 @@ interface ServerI extends Tier {
 }
 
 class Server(String name) implements ServerI {
-  PortI port = null;
+  PortI portFrom = null;
+  PortI portTo = null;
   List<String> chatlog = Nil;
   List<Tier> tiers = Nil;
 
-  Unit connectToPort(PortI p){port = p;}
+  Unit connectToPort(PortI p){portTo = p;}
   Unit connectToTier(Tier t){tiers = appendright(tiers,t);}
-  Unit connectFromPort(PortI p){skip;}
+  Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit broadcast(){
-    await port != null;
-    await tiers != Nil;
-    StreamM chat = await port!receive(this);
+    await portFrom != null;
+    StreamM chat = await portFrom!receive(this);
     Int  size = length(chat);
     Int i = 0;
     while (i<size) {
       chatlog = appendright(chatlog,msg(nth(chat,i)));
       i = i+1;
     }
+    await portTo!= null;
+    await tiers != Nil;
     foreach (tier in tiers){
       i = 0;
       while (i<size) {
-        if (authorId(nth(chat,i)) != tier) await port!fire(tier, nth(chat,i));
+        if (authorId(nth(chat,i)) != tier) await portTo!fire(tier, nth(chat,i));
         i = i+1;
       }
     }

@@ -25,10 +25,16 @@ import * from ClientServerLoad;
 // MAIN BLOCK
 
 {
-  ServerI server = new Server("Server");
+  List<ServerI> servers = Nil;
   List<ClientI> clients = Nil;
   PortI port = new Port();
   ClientI c = null;
+  ServerI s = null;
+
+  s =  new Server("Server1");
+  servers = appendright(servers,s);
+//  s =  new Server("Server2");
+//  servers = appendright(servers,s);
 
   c = new Client("English");
   clients = appendright(clients,c);
@@ -42,9 +48,11 @@ import * from ClientServerLoad;
 //  clients = appendright(clients,c);
 
    ConnectI dp = new Connect();
-   await dp!oneManyConnect(server,clients,port);
+   await dp!manyManyConnect(servers,clients,port);
 
-   server!broadcast();
+   foreach (server in servers){
+     server!broadcast();
+   }
    foreach (client in clients){
      client!listen();
    }
@@ -62,7 +70,10 @@ import * from ClientServerLoad;
    await duration(40000,40000);
 
    println(`================RESULTS=================`);
-   await server!print();
+
+   foreach (server in servers){
+     await server!print();
+   }
    foreach (client in clients){
      await client!print();
    }
