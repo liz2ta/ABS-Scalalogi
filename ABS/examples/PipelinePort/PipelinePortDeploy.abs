@@ -35,9 +35,9 @@ import * from PipelinePortLoad;
 
   ConnectI dp = new Connect();
 
-  await dp!connectToFrom(input,filter,p1);// input connects to filter in p1
-  await dp!connectToFrom(filter,mapper,p2);// filter connects to mapper in p2
-  await dp!connectToFrom(mapper,folder,p3);// mapper onnects to folder in p3
+  await dp!connectTo(input,filter,p1);// input connects to filter in p1
+  await dp!connectTo(filter,mapper,p2);// filter connects to mapper in p2
+  await dp!connectTo(mapper,folder,p3);// mapper onnects to folder in p3
 
   PipelineLoadI pl = new PipelineLoad(input);
 
