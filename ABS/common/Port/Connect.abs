@@ -16,13 +16,14 @@ interface ConnectI {
   //manual stream
   Unit connect(Tier tierFrom, Tier tierTo, PortI port);
   Unit connectTo(Tier tierFrom, Tier tierTo, PortI port);
-  Unit connectToFrom(Tier tierFrom, Tier tierTo, PortI port);
 
   Unit oneManyConnect(Tier one, List<Tier> many, PortI port);
+  Unit manyOneConnect(List<Tier> many, Tier one, PortI port);
   Unit oneManyConnectTo(Tier one, List<Tier> many, PortI port);
   Unit manyOneConnectTo(List<Tier> many, Tier one, PortI port);
 
-
+  Unit manyManyConnect(List<Tier> manyFrom, List<Tier> manyTo, PortI port);
+  Unit manyManyConnectTo(List<Tier> manyFrom, List<Tier> manyTo, PortI port);
 }
 
 class Connect() implements ConnectI {
@@ -36,12 +37,6 @@ class Connect() implements ConnectI {
     await tierFrom!connectToTier(tierTo);
     await tierFrom!connectToPort(port);
     await port!connect(tierTo,0);
-  }
-
-  Unit connectToFrom(Tier tierFrom, Tier tierTo, PortI port){
-    await tierFrom!connectToTier(tierTo);
-    await tierFrom!connectToPort(port);
-    await port!connect(tierTo,0);
     await tierTo!connectFromPort(port);
   }
 
@@ -50,22 +45,37 @@ class Connect() implements ConnectI {
     this.manyOneConnectTo(many, one, port);
   }
 
+  Unit manyOneConnect(List<Tier> many, Tier one, PortI port){
+    this.manyOneConnectTo(many, one, port);
+    this.oneManyConnectTo(one, many, port);
+  }
+
   Unit oneManyConnectTo(Tier one, List<Tier> many, PortI port){
     await one!connectToPort(port);
     foreach (tier in many){
         await one!connectToTier(tier);
         await port!connect(tier,0);
+        await tier!connectFromPort(port);
     }
   }
 
   Unit manyOneConnectTo(List<Tier> many, Tier one, PortI port){
     await port!connect(one,0);
+    await one!connectFromPort(port);
     foreach (tier in many){
       await tier!connectToTier(one);
       await tier!connectToPort(port);
     }
   }
 
+ Unit manyManyConnect(List<Tier> manyFrom, List<Tier> manyTo, PortI port){
+    this.manyManyConnectTo(manyFrom, manyTo, port);
+    this.manyManyConnectTo(manyTo, manyFrom, port);
+ }
 
-
+ Unit manyManyConnectTo(List<Tier> manyFrom, List<Tier> manyTo, PortI port){
+    foreach (tier in manyFrom){
+      this.oneManyConnectTo(tier, manyTo, port);
+    }
+  }
 }
