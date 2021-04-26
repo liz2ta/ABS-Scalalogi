@@ -24,6 +24,7 @@ interface MediumI {
 
 class Medium(Int size) implements MediumI {
   List<Event> msgs = Nil;
+  
   Unit send(Event m) {
         msgs = appendright(msgs, m);
   }

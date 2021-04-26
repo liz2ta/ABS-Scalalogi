@@ -34,10 +34,10 @@ class Connect() implements ConnectI {
   }
 
   Unit connectTo(Tier tierFrom, Tier tierTo, PortI port){
-    await tierFrom!connectToTier(tierTo);
     await tierFrom!connectToPort(port);
-    await port!connect(tierTo,0);
     await tierTo!connectFromPort(port);
+    await port!connectTo(tierFrom,tierTo,0);
+
   }
 
   Unit oneManyConnect(Tier one, List<Tier> many, PortI port) {
@@ -53,20 +53,20 @@ class Connect() implements ConnectI {
   Unit oneManyConnectTo(Tier one, List<Tier> many, PortI port){
     await one!connectToPort(port);
     foreach (tier in many){
-        await one!connectToTier(tier);
-        await port!connect(tier,0);
         await tier!connectFromPort(port);
+        await port!connectTo(one,tier,0);
     }
   }
 
+
   Unit manyOneConnectTo(List<Tier> many, Tier one, PortI port){
-    await port!connect(one,0);
-    await one!connectFromPort(port);
     foreach (tier in many){
-      await tier!connectToTier(one);
-      await tier!connectToPort(port);
+        await tier!connectToPort(port);
+        await port!connectTo(tier,one,0);
     }
+    await one!connectFromPort(port);
   }
+
 
  Unit manyManyConnect(List<Tier> manyFrom, List<Tier> manyTo, PortI port){
     this.manyManyConnectTo(manyFrom, manyTo, port);

@@ -20,7 +20,11 @@ import * from Stream;
 import * from Port;
 
 class Tier() implements Tier {
-  Unit foo(){skip;}
+  PortI portFrom = null;
+  PortI portTo = null;
+
+  Unit connectToPort(PortI p){portTo = p;}
+  Unit connectFromPort(PortI p){portFrom = p;}
 }
 
 {
@@ -28,13 +32,16 @@ class Tier() implements Tier {
   StreamM intermediate = Nil;
 
   PortI p = new Port();
-  Tier tier = new Tier();
+  Tier tierFrom = new Tier();
+  Tier tierTo = new Tier();
 
-  await p!connect(tier,0);
+  await p!connectTo(tierFrom,tierTo,0);
 
-   p!send(tier, msgs);
+   p!send(tierFrom, msgs);
    duration(1);
-  intermediate = await p!receive(tier);
+   intermediate = await p!receive(tierTo);
+
+
   Int size = length(intermediate);
   Int i = 0;
   Event m = 0;

@@ -5,10 +5,10 @@ CURRENT VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 
 /*
 to compile and test with a channel
-absc --erlang test/TestChannel/*.abs common/Channel/*.abs
+absc --erlang test/TestMedium/*.abs common/Channel/*.abs
 
 to compile and test with messages
-absc --erlang test/TestChannel/*.abs common/Message/*.abs
+absc --erlang test/TestMedium/*.abs common/Message/*.abs
 */
 
 module TestM;
@@ -25,7 +25,7 @@ import * from Event;
 
 
   foreach (msg in  msgs) {
-    await c1!send(msg);
+    await  c1!send(msg);
     println(`we have sent $msg$`);
   }
 
@@ -35,7 +35,6 @@ import * from Event;
     println(`we have sent $nth(msgs,i)$`);
     i = i+1;
   }*/
-  duration(1);
   println(`we finished the sending`);
   i = 0;
   while(i<size){

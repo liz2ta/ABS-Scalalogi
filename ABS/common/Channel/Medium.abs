@@ -16,6 +16,7 @@ interface MediumI {
 //if size = 0, then unbounded channel
 class Medium(Int size) implements MediumI {
   List<Event> msgs = Nil;
+
   Unit send(Event m) {
       if (size == 0) msgs = appendright(msgs, m);
       else {

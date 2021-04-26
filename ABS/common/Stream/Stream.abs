@@ -13,23 +13,29 @@ type StreamM = List<Event>;
 
 interface InputStreamI {
   StreamM withdraw();
+  Bool isActive();
 }
 
 
 class InputStream(MediumI c) implements InputStreamI {
   StreamM msgs = Nil;
+  Bool active = False;
 
   Unit  deposit() {
       Event m = await c!receive();
       msgs = appendright(msgs, m);
+      active = True;
   }
 
   StreamM withdraw() {
     await !isEmpty(msgs);
     StreamM tmp = msgs;
     msgs = Nil;
+    active = False;
     return tmp;
   }
+
+  Bool isActive(){return active;}
 
   Unit run(){
     await this!deposit();
@@ -39,21 +45,27 @@ class InputStream(MediumI c) implements InputStreamI {
 
 interface OutputStreamI {
   Unit deposit(StreamM st);
+  Bool isActive();
 }
 
 class OutputStream(MediumI c) implements OutputStreamI {
   StreamM msgs = Nil;
+  Bool active = False;
 
   Unit  deposit(StreamM st) {
       msgs = concatenate(msgs,st);
+      active = True;
   }
 
   Unit withdraw() {
     await !isEmpty(msgs);
     Event h = head(msgs);
     msgs = tail(msgs);
+    if (isEmpty(msgs)) active = False;
     await c!send(h);
   }
+
+  Bool isActive(){return active;}
 
   Unit run(){
     await this!withdraw();

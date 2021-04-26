@@ -12,7 +12,6 @@ import * from Stream;
 export *;
 
 interface Tier{
-  Unit connectToTier(Tier t);
   Unit connectToPort(PortI p);
   Unit connectFromPort(PortI p);
 }
@@ -21,45 +20,85 @@ interface PortI {
   StreamM receive(Tier tier);
   Unit send(Tier tier, StreamM st);
   Unit fire(Tier tier, Event m);
-  Unit connect (Tier tier, Int size);
+  Unit connectTo (Tier tierFrom,  Tier tierTo, Int size);
 }
 
 class Port() implements PortI {
-  Map<Tier,MediumI> conn = map[];
-  Map<Tier,Bool> setup = map[];
-  Map<Tier,InputStreamI> ist = map[];
-  Map<Tier,OutputStreamI> ost = map[];
+  Map<Tier,List<MediumI>>connTo = map[];
+  Map<Tier,List<MediumI>>connFrom = map[];
+  Map<Tier,Bool>activeTo = map[];
+  Map<MediumI, Bool> setup = map[];
+  Map<MediumI,InputStreamI> ist = map[];
+  Map<MediumI,OutputStreamI> ost = map[];
 
   StreamM receive(Tier tier) {
-    await lookupDefault(setup, tier, False);
-    InputStreamI  i = lookupUnsafe(ist,tier);
-    StreamM st = await i!withdraw();
-    return st;
+    await lookupDefault(connTo,tier,Nil) != Nil;
+    await lookupDefault(activeTo,tier,False) != False;
+    List<MediumI> connections = lookupUnsafe(connTo,tier);
+    StreamM res = Nil;
+    foreach (conn in  connections){
+      await lookupDefault(setup, conn, False);
+      InputStreamI  i = lookupUnsafe(ist,conn);
+      Bool active = await i!isActive();
+      StreamM st = Nil;
+      if (active)
+        st = await i!withdraw();
+      res = concatenate(res,st);
+    }
+    activeTo = put(activeTo,tier, False);
+    return res;
   }
 
   Unit  send(Tier tier, StreamM st) {
-    await lookupDefault(setup, tier, False);
-    OutputStreamI o = lookupUnsafe(ost,tier);
-    o!deposit(st);
+    await lookupDefault(connFrom,tier,Nil) != Nil;
+    List<MediumI> connections = lookupUnsafe(connFrom,tier);
+    foreach (conn in  connections){
+      await lookupDefault(setup, conn, False);
+      OutputStreamI o = lookupUnsafe(ost,conn);
+      o!deposit(st);
+    }
   }
 
   Unit  fire(Tier tier, Event m) {
-    await lookupDefault(setup, tier, False);
-    OutputStreamI o = lookupUnsafe(ost,tier);
-    o!deposit(Cons(m,Nil));
+    await lookupDefault(connFrom,tier,Nil) != Nil;
+    List<MediumI> connections = lookupUnsafe(connFrom,tier);
+    foreach (conn in  connections){
+      await lookupDefault(setup, conn, False);
+      OutputStreamI o = lookupUnsafe(ost,conn);
+      o!deposit(Cons(m,Nil));
+    }
   }
 
-  Unit connect (Tier tier, Int size){
+  Unit connectTo (Tier tierFrom,Tier tierTo,Int size){
     MediumI medium = new Medium(size);
-    conn = put(conn, tier, medium);
+    List<MediumI> mediums = appendright(lookupDefault(connFrom,tierFrom,Nil), medium);
+    connFrom = put(connFrom,tierFrom, mediums);
+    activeTo = put(activeTo,tierTo, False);
+    mediums = appendright(lookupDefault(connTo,tierTo,Nil), medium);
+    connTo = put(connTo,tierTo,mediums);
   //  println(`connections: $conn$`);
     InputStreamI i = new InputStream(medium);
     OutputStreamI o = new OutputStream(medium);
-    ist = put(ist, tier, i);
+    ist = put(ist, medium, i);
   //  println(`inputs: $ist$`);
-    ost = put(ost, tier, o);
+    ost = put(ost, medium, o);
   //  println(`outputs: $ost$`);
-    setup = put(setup, tier, True);
+    setup = put(setup,medium,True);
   //  println(`setups: $setup$`);
+  }
+
+  Unit run(){
+    await duration(10);
+    await ist != map[];
+    foreach(entry in entries(connTo)){
+      foreach(medium in snd(entry)){
+        await lookupDefault(setup, medium, False);
+        InputStreamI  i = lookupUnsafe(ist,medium);
+        Bool active = await i!isActive();
+        if (active) {
+          activeTo = put(activeTo,fst(entry), True);}
+      }
+    }
+    this!run();
   }
 }

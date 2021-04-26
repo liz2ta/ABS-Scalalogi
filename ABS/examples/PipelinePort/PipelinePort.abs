@@ -17,18 +17,14 @@ interface InputI extends Tier {
 }
 
 class Input() implements InputI {
+  PortI portTo = null;
 
-  PortI port = null;
-  Tier tier = null;
-
-  Unit connectToTier(Tier t){tier = t;}
-  Unit connectToPort(PortI p){port = p;}
+  Unit connectToPort(PortI p){portTo = p;}
   Unit connectFromPort(PortI p){skip;}
 
   Unit fire(Event tweet) {
-    await tier != null;
-    await port != null;
-    port!fire(tier,tweet);
+    await portTo != null;
+    portTo!fire(this,tweet);
   //  println(`Input has sent $t$`);
   }
 }
@@ -41,18 +37,15 @@ interface FilterI extends Tier {
 class Filter() implements FilterI {
   PortI portFrom = null;
   PortI portTo = null;
-  Tier tier = null;
 
-  Unit connectToTier(Tier t){tier = t;}
   Unit connectToPort(PortI p){portTo = p;}
   Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit filtered(Hashtag ht) {
     StreamM filter = Nil;
-    duration(5,5);
     await portFrom != null;
     StreamM st = await portFrom!receive(this);
-    println(`Filter has received $st$`);
+    //println(`Filter has received $st$`);
     foreach (m in st) {
       foreach (h in hashtags(m)) {
         if (h == ht) {
@@ -61,9 +54,8 @@ class Filter() implements FilterI {
         }
       }
     }
-    await tier != null;
     await portTo != null;
-    portTo!send(tier,filter);
+    portTo!send(this,filter);
     println(`Filter has sent $filter$`);
     this!filtered(ht);
    }
@@ -77,21 +69,19 @@ interface MapperI extends Tier {
 class Mapper() implements MapperI {
   PortI portFrom = null;
   PortI portTo = null;
-  Tier tier = null;
 
-  Unit connectToTier(Tier t){tier = t;}
   Unit connectToPort(PortI p){portTo = p;}
   Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit mapped() {
     StreamM map = Nil;
-    duration(5,5);
     await portFrom != null;
     StreamM st = await portFrom!receive(this);
     foreach (m in st) {
       map = appendright(map,Author(authorId(m)));
     }
-    portTo!send(tier,map);
+    await portTo != null;
+    portTo!send(this,map);
     println(`Mapper has sent $map$`);
     this!mapped();
   }
@@ -106,12 +96,10 @@ class Folder() implements FolderI {
   PortI portFrom = null;
   Map<String,Int> folded = map[];
 
-  Unit connectToTier(Tier t){skip;}
   Unit connectToPort(PortI p){skip;}
   Unit connectFromPort(PortI p){portFrom = p;}
 
   Unit folded() {
-    duration(5,5);
     await portFrom != null;
     StreamM st = await portFrom!receive(this);
     println(`==FOLDER HAS RECEIVED $st$==`);
