@@ -1,0 +1,46 @@
+/*************************************
+Port implementation
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+
+module EndPoint;
+
+import * from Event;
+import * from Medium;
+import * from Stream;
+import * from Port;
+import * from Connect;
+
+export *;
+
+interface EndPointI extends Tier{
+  Unit connectToWorker(PortI p);
+  PortI getPort();
+
+}
+class EndPoint() implements EndPointI{
+  PortI portFrom = null;
+  List<PortI> portsToWs = Nil;
+
+  Unit connectFromPort(PortI p){portFrom = p;}
+  Unit connectToPort(PortI p){skip;}
+  Unit connectToWorker(PortI p){portsToWs = appendright(portsToWs,p);}
+
+  PortI getPort(){
+    await portsToWs != Nil;
+    PortI hd = head(portsToWs);
+    List<PortI> tl = tail(portsToWs);
+    portsToWs = appendright(tl,hd);
+    return hd;
+  }
+
+  Unit run(){
+    await portFrom != null;
+    StreamM st = await portFrom!receive(this);
+    PortI p = await this!getPort();
+    await p!send(this, st);
+    this!run();
+  }
+
+}

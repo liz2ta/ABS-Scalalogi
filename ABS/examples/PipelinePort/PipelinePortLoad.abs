@@ -29,7 +29,7 @@ class PipelineLoad(InputI input) implements PipelineLoadI {
             Tweet("author3", list["ht1"]),
             Tweet("author2", list["ht1"])];
 
-  Int counter = 10;
+  Int counter = 100;
   Int i1 = 0;
   Int i2 = 0;
   Int size = length(msgs);

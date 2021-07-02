@@ -10,12 +10,14 @@ import * from Medium;
 import * from Event;
 import * from Stream;
 import * from Port;
+import * from EndPoint;
 
 
 interface ConnectI {
   //manual stream
   Unit connect(Tier tierFrom, Tier tierTo, PortI port);
   Unit connectTo(Tier tierFrom, Tier tierTo, PortI port);
+  Unit connectToW(EndPointI tierFrom, Tier tierTo, PortI port);
 
   Unit oneManyConnect(Tier one, List<Tier> many, PortI port);
   Unit manyOneConnect(List<Tier> many, Tier one, PortI port);
@@ -35,6 +37,13 @@ class Connect() implements ConnectI {
 
   Unit connectTo(Tier tierFrom, Tier tierTo, PortI port){
     await tierFrom!connectToPort(port);
+    await tierTo!connectFromPort(port);
+    await port!connectTo(tierFrom,tierTo,0);
+
+  }
+
+  Unit connectToW(EndPointI tierFrom, Tier tierTo, PortI port){
+    await tierFrom!connectToWorker(port);
     await tierTo!connectFromPort(port);
     await port!connectTo(tierFrom,tierTo,0);
 

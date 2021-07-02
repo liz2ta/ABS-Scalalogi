@@ -5,10 +5,10 @@ FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
 
 /*
 to compile and test with a channel
-absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs common/EndPoint/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
 
 to compile and test with unordered messages
-absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs common/EndPoint/*.abs  examples/ClientServerPort/*.abs examples/ClientServerPort/ClientServerDeploy/ClientServerDeployManyOne.abs
 */
 
 module ClientServerDeployManyOne;

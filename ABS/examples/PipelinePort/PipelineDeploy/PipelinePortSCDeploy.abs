@@ -1,0 +1,88 @@
+/*************************************
+Tweet example, inspired by the scalalogy pipeline example
+FIRST VERSION BY(2021.04.24): S. Lizeth Tapia Tarifa
+************************************/
+
+/*
+to compile and test with a channel
+absc --erlang  common/Channel/*.abs common/Stream/*.abs common/Port/*.abs  common/EndPoint/*.abs examples/PipelinePort/*.abs examples/PipelinePort/PipelineDeploy/PipelinePortSCDeploy.abs
+
+
+to compile and test with messages
+absc --erlang  common/Message/*.abs common/Stream/*.abs common/Port/*.abs common/EndPoint/*.abs examples/PipelinePort/*.abs examples/PipelinePort/PipelineDeploy/PipelinePortSCDeploy.abs
+*/
+
+module PipelinePortSCDeploy;
+
+import * from Medium;
+import * from Event;
+import * from Stream;
+import * from Port;
+import * from Connect;
+import * from EndPoint;
+import * from PipelinePort;
+import * from PipelinePortLoad;
+
+// MAIN BLOCK
+
+{
+  PortI p1 = new Port();
+
+  PortI p11 = new Port();
+  PortI p12 = new Port();
+  PortI p13 = new Port();
+
+  PortI p2 = new Port();
+
+  PortI p21 = new Port();
+  PortI p22 = new Port();
+  PortI p23 = new Port();
+
+  PortI p3 = new Port();
+
+  InputI input = new Input();
+
+  EndPointI epFilter = new EndPoint();
+  FilterI filter1 = new Filter();
+  FilterI filter2 = new Filter();
+  FilterI filter3 = new Filter();
+
+  EndPointI epMapper = new EndPoint();
+  MapperI mapper1 = new Mapper();
+  MapperI mapper2 = new Mapper();
+  MapperI mapper3 = new Mapper();
+
+  FolderI folder = new Folder();
+
+  ConnectI dp = new Connect();
+
+  await dp!connectTo(input,epFilter,p1);// input connects to epfilter in p1
+  await dp!connectToW(epFilter,filter1,p11);// epFilter connects to filter1 in p11
+  await dp!connectToW(epFilter,filter1,p12);// epFilter connects to filter2 in p12
+  await dp!connectToW(epFilter,filter3,p13);// epFilter connects to filter3 in p13
+
+  await dp!manyOneConnect(list[filter1,filter2,filter3],epMapper,p2); //filters connect to epmapper in p2
+  await dp!connectToW(epMapper,mapper1,p21);// epMapper connects to mapper1 in p21
+  await dp!connectToW(epMapper,mapper2,p22);// epMapper connects to mapper2 in p22
+  await dp!connectToW(epMapper,mapper3,p23);// epMapper connects to mapper3 in p23
+
+  await dp!manyOneConnect(list[mapper1,mapper2,mapper3],folder,p3); //mappers connect to folder in p3
+
+  PipelineLoadI pl = new PipelineLoad(input);
+
+  println(`================EXECUTION=================`);
+
+  filter1!filtered("ht1");
+  filter2!filtered("ht1");
+  filter3!filtered("ht1");
+  mapper1!mapped();
+  mapper2!mapped();
+  mapper3!mapped();
+  folder!folded();
+  await pl!stream();
+  await duration(40000,40000);
+
+  println(`================RESULTS=================`);
+  folder!printFolder();
+
+}
