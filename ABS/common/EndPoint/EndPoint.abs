@@ -14,18 +14,18 @@ import * from Connect;
 
 export *;
 
-interface EndPointI extends Tier{
-  Unit connectToWorker(PortI p);
-  PortI getPort();
-
-}
-class EndPoint() implements EndPointI{
+//interface EndPointI extends Tier{
+  //Unit connectToWorker(PortI p);
+//  PortI getPort();
+//}
+class RREndPoint() implements Tier{
   PortI portFrom = null;
   List<PortI> portsToWs = Nil;
 
   Unit connectFromPort(PortI p){portFrom = p;}
-  Unit connectToPort(PortI p){skip;}
-  Unit connectToWorker(PortI p){portsToWs = appendright(portsToWs,p);}
+//  Unit connectToPort(PortI p){skip;}
+//  Unit connectToWorker(PortI p){portsToWs = appendright(portsToWs,p);}
+Unit connectToPort(PortI p){portsToWs = appendright(portsToWs,p);}
 
   PortI getPort(){
     await portsToWs != Nil;

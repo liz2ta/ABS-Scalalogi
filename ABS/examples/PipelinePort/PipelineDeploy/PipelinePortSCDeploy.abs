@@ -42,12 +42,12 @@ import * from PipelinePortLoad;
 
   InputI input = new Input();
 
-  EndPointI epFilter = new EndPoint();
+  Tier epFilter = new RREndPoint();
   FilterI filter1 = new Filter();
   FilterI filter2 = new Filter();
   FilterI filter3 = new Filter();
 
-  EndPointI epMapper = new EndPoint();
+  Tier epMapper = new RREndPoint();
   MapperI mapper1 = new Mapper();
   MapperI mapper2 = new Mapper();
   MapperI mapper3 = new Mapper();
@@ -57,16 +57,16 @@ import * from PipelinePortLoad;
   ConnectI dp = new Connect();
 
   await dp!connectTo(input,epFilter,p1);// input connects to epfilter in p1
-  await dp!connectToW(epFilter,filter1,p11);// epFilter connects to filter1 in p11
-  await dp!connectToW(epFilter,filter1,p12);// epFilter connects to filter2 in p12
-  await dp!connectToW(epFilter,filter3,p13);// epFilter connects to filter3 in p13
+  await dp!connectTo(epFilter,filter1,p11);// epFilter connects to filter1 in p11
+  await dp!connectTo(epFilter,filter1,p12);// epFilter connects to filter2 in p12
+  await dp!connectTo(epFilter,filter3,p13);// epFilter connects to filter3 in p13
 
-  await dp!manyOneConnect(list[filter1,filter2,filter3],epMapper,p2); //filters connect to epmapper in p2
-  await dp!connectToW(epMapper,mapper1,p21);// epMapper connects to mapper1 in p21
-  await dp!connectToW(epMapper,mapper2,p22);// epMapper connects to mapper2 in p22
-  await dp!connectToW(epMapper,mapper3,p23);// epMapper connects to mapper3 in p23
+  await dp!manyOneConnectTo(list[filter1,filter2,filter3],epMapper,p2); //filters connect to epmapper in p2
+  await dp!connectTo(epMapper,mapper1,p21);// epMapper connects to mapper1 in p21
+  await dp!connectTo(epMapper,mapper2,p22);// epMapper connects to mapper2 in p22
+  await dp!connectTo(epMapper,mapper3,p23);// epMapper connects to mapper3 in p23
 
-  await dp!manyOneConnect(list[mapper1,mapper2,mapper3],folder,p3); //mappers connect to folder in p3
+  await dp!manyOneConnectTo(list[mapper1,mapper2,mapper3],folder,p3); //mappers connect to folder in p3
 
   PipelineLoadI pl = new PipelineLoad(input);
 
